@@ -2,12 +2,12 @@ package banking;
 
 import java.util.HashMap;
 
+
 class Menu
 {
-    private static final HashMap<Position, banking.MenuEntry> MENU = banking.MenuStructure.MENU;
-    private static final banking.MenuEntry NULL_MENU_ENTRY = new banking.MenuEntry("", new Position[0]);
+    private static final HashMap<Position, MenuEntry> MENU = MenuStructure.MENU;
+    private static final MenuEntry                    NULL = new MenuEntry("", new Position[0]);
     
-    private Position position;
     private Position[] availablePositions;
     
     Menu()
@@ -29,13 +29,9 @@ class Menu
         
         for (int i = 1; i < availablePositions.length; i++)
         {
-            System.out.printf(
-                    "%d. %s%n",
-                    i,
-                    getMenuEntry(availablePositions[i]).getName()
-            );
+            System.out.printf("%d. %s%n", i, getMenuEntry(availablePositions[i]).getName());
         }
-    
+        
         System.out.println("0. Exit");
     }
     
@@ -45,11 +41,7 @@ class Menu
         {
             Position pos = availablePositions[optionNr];
             
-            setPosition(
-                    pos.isLeaf ?
-                    getMenuEntry(pos).get() :
-                    pos
-            );
+            setPosition(pos.isLeaf ? getMenuEntry(pos).get() : pos);
         }
         else
         {
@@ -59,12 +51,11 @@ class Menu
     
     private void setPosition(Position position)
     {
-        this.position = position;
         availablePositions = getMenuEntry(position).getLinks();
     }
     
-    private banking.MenuEntry getMenuEntry(Position position)
+    private MenuEntry getMenuEntry(Position position)
     {
-        return MENU.getOrDefault(position, NULL_MENU_ENTRY);
+        return MENU.getOrDefault(position, NULL);
     }
 }

@@ -1,2 +1,4 @@
 /src/main/java/banking/Secret.java
 /build/classes/java/main/banking/Secret.class
+/.gradle/
+/build/

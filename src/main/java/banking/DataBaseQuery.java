@@ -1,49 +1,37 @@
 package banking;
 
-import java.util.Objects;
 
 class DataBaseQuery
 {
-    private final banking.TransactionType transactionType;
-    private final String[] transactionDetails;
-    private final banking.Account account;
-    private final banking.Account[] additionalAccounts;
+    private final TransactionType transactionType;
+    private final String[]        transactionDetails;
+    private final Account         account;
+    private final Account[]       additionalAccounts;
     
-    DataBaseQuery(banking.TransactionType transactionType, banking.Account account)
+    DataBaseQuery(TransactionType transactionType, Account account)
     {
         this(transactionType, account, new String[0]);
     }
     
-    DataBaseQuery(banking.TransactionType transactionType, banking.Account account, String[] transactionDetails, banking.Account... additionalAccounts)
+    DataBaseQuery(TransactionType transactionType,
+                  Account account,
+                  String[] transactionDetails,
+                  Account... additionalAccounts
+    )
     {
-        this.transactionType = transactionType;
+        this.transactionType    = transactionType;
         this.transactionDetails = transactionDetails.clone();
-        this.account = account;
+        this.account            = account;
         this.additionalAccounts = additionalAccounts.clone();
     }
     
     
     // TRANSACTION TYPE
     
-    banking.TransactionType getTransactionType()
+    TransactionType getTransactionType()
     {
         return transactionType;
     }
-    
-    boolean isType(banking.TransactionType transactionType)
-    {
-        return Objects.equals(this.transactionType, transactionType);
-    }
-    
-    
-    
-    // OWNER ACCOUNT
-    
-    banking.Account getAccount()
-    {
-        return account;
-    }
-    
     
     
     // TRANSACTION DETAILS
@@ -59,9 +47,17 @@ class DataBaseQuery
     }
     
     
+    // OWNER ACCOUNT
+    
+    Account getAccount()
+    {
+        return account;
+    }
+    
+    
     // ADDITIONAL ACCOUNTS
     
-    banking.Account[] getAdditionalAccounts()
+    Account[] getAdditionalAccounts()
     {
         return additionalAccounts.clone();
     }

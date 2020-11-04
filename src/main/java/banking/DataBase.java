@@ -7,88 +7,94 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
-import static banking.DataBaseReply.ReplyType.*;
+import static banking.DataBaseReply.ReplyType.CONNECTED;
+import static banking.DataBaseReply.ReplyType.ERROR;
+import static banking.DataBaseReply.ReplyType.NOT_CONNECTED;
+
 
 class DataBase
 {
-    private final String URL;
-    private final String USERNAME;
-    private final String PASSWORD;
-    private Connection connection;
+    private final String     URL;
+    private final String     USERNAME;
+    private final String     PASSWORD;
+    private       Connection connection;
     
     DataBase(String url, String username, String password)
     {
-        this.URL = url;
+        this.URL      = url;
         this.USERNAME = username;
         this.PASSWORD = password;
     }
     
     
-    static boolean executeWithHysteresis(
-            Supplier<banking.DataBaseReply> supplier, ReplyType targetReplyType, String... timeoutMsg
+    /**
+     * Execute methods related to database connection with hysteresis. Maximum trials count is 3 at one second interval.
+     *
+     * @param methodToExecute The executeWithHysteresis() tries to execute this.
+     * @param targetReplyType The required return value from the method.
+     * @param timeoutMessages String vararg to display line-by-line if time is over.
+     *
+     * @return true - if executed successfully //
+     *         false - if an error occurs
+     */
+    static boolean executeWithHysteresis(Supplier<DataBaseReply> methodToExecute,
+                                         ReplyType targetReplyType,
+                                         String... timeoutMessages
     )
     {
-        banking.DataBaseReply reply;
-        int hysteresis = 5;
-        int counter = 0;
-
+        DataBaseReply reply;
+        int           hysteresis = 3;
+        int           counter    = 0;
+        
         do
         {
-            reply = supplier.get();
-
-            if (reply.isType(targetReplyType))
+            reply = methodToExecute.get();
+            
+            if (reply.isType(targetReplyType)) return true;
+            
+            try
             {
-                return true;
+                Thread.sleep(1000);
             }
-
+            catch (InterruptedException ignored)
+            {
+            }
         } while (counter++ < hysteresis);
-
-
-        for (var string : timeoutMsg)
-        {
-            System.out.println(string);
-        }
-
+        
+        for (var msg : timeoutMessages) System.out.println(msg);
+        
         return false;
     }
     
     
     // INSTANCE METHODS
     
-    banking.DataBaseReply connect()
+    // CONNECTION: establish, get, close
+    
+    DataBaseReply connect()
     {
         var dataSource = new MysqlDataSource();
         dataSource.setURL(URL);
         try
         {
             dataSource.setServerTimezone("UTC");
-        }
-        catch (SQLException e)
-        {
-            return makeErrorReply(e, "SQLException when setting server's time zone:%n%s%n%n");
-        }
-    
-        try
-        {
             this.connection = dataSource.getConnection(USERNAME, PASSWORD);
         }
         catch (SQLException e)
         {
             return makeErrorReply(e, "SQLException when establishing the connection:%n%s%n%n");
         }
-    
+        
         return isConnected();
     }
     
-    banking.DataBaseReply isConnected()
+    DataBaseReply isConnected()
     {
         if (connection != null)
         {
             try
             {
-                return connection.isValid(3) ?
-                       new banking.DataBaseReply(CONNECTED) :
-                       new banking.DataBaseReply(NOT_CONNECTED);
+                return connection.isValid(3) ? new DataBaseReply(CONNECTED) : new DataBaseReply(NOT_CONNECTED);
             }
             catch (SQLException e)
             {
@@ -97,7 +103,7 @@ class DataBase
         }
         else
         {
-            return new banking.DataBaseReply(NOT_CONNECTED);
+            return new DataBaseReply(NOT_CONNECTED);
         }
     }
     
@@ -106,8 +112,8 @@ class DataBase
         return connection;
     }
     
-   
-    banking.DataBaseReply close()
+    
+    DataBaseReply close()
     {
         try
         {
@@ -117,13 +123,15 @@ class DataBase
         {
             return makeErrorReply(e, "SQLException when closing the connection:%n%s%n%n");
         }
-        return new banking.DataBaseReply(NOT_CONNECTED);
+        return new DataBaseReply(NOT_CONNECTED);
     }
     
     
-    banking.DataBaseReply processQuery(banking.DataBaseQuery dataBaseQuery)
+    // QUERY PROCESSING
+    
+    DataBaseReply processQuery(DataBaseQuery dataBaseQuery)
     {
-        if (isConnected().isNotType(CONNECTED)) return new banking.DataBaseReply(NOT_CONNECTED);
+        if (isConnected().isNotType(CONNECTED)) return new DataBaseReply(NOT_CONNECTED);
         
         try
         {
@@ -135,10 +143,13 @@ class DataBase
         }
     }
     
-    private banking.DataBaseReply makeErrorReply(Exception e, String s)
+    
+    // LOW-LEVEL
+    
+    private DataBaseReply makeErrorReply(Exception exception, String messageFormat)
     {
-        String msg = String.format(s, e);
+        String msg = String.format(messageFormat, exception);
         System.err.print(msg);
-        return new banking.DataBaseReply(ERROR, msg);
+        return new DataBaseReply(ERROR, msg);
     }
 }
