@@ -9,7 +9,7 @@ import static banking.DataBaseReply.ReplyType.CONNECTED;
 import static banking.DataBaseReply.ReplyType.CREATED;
 import static banking.DataBaseReply.ReplyType.EXISTS;
 import static banking.DataBaseReply.ReplyType.NOT_CONNECTED;
-import static banking.Main.database;
+import static banking.Main.DATABASE;
 import static banking.TransactionType.ADD_ACCOUNT_TO_DATABASE;
 import static banking.TransactionType.AUTHENTICATE_ACCOUNT;
 import static banking.TransactionType.CHECK_ACCOUNT_EXISTENCE;
@@ -64,9 +64,9 @@ class Account
         DataBaseReply auth;
         Account       tmpAccount = new Account(cardNumber, pinCode);
         
-        reply = database.processQuery(new DataBaseQuery(ADD_ACCOUNT_TO_DATABASE, tmpAccount));
+        reply = DATABASE.processQuery(new DataBaseQuery(ADD_ACCOUNT_TO_DATABASE, tmpAccount));
         
-        auth = database.processQuery(new DataBaseQuery(AUTHENTICATE_ACCOUNT, tmpAccount));
+        auth = DATABASE.processQuery(new DataBaseQuery(AUTHENTICATE_ACCOUNT, tmpAccount));
         
         
         if (reply.isType(CREATED) && auth.isType(AUTHENTICATED))
@@ -114,13 +114,13 @@ class Account
             
             tmpCardNumber = BIN + tmpAccountNumber + calculateChecksum(BIN, tmpAccountNumber);
             
-            reply = database.processQuery(new DataBaseQuery(CHECK_ACCOUNT_EXISTENCE,
+            reply = DATABASE.processQuery(new DataBaseQuery(CHECK_ACCOUNT_EXISTENCE,
                                                             Account.createWrapperAccount(tmpCardNumber)
             ));
             
             if (reply.isType(NOT_CONNECTED))
             {
-                DataBase.executeWithHysteresis(database::connect, CONNECTED, "Can not connect to database.");
+                DataBase.executeWithHysteresis(DATABASE::connect, CONNECTED, "Can not connect to database.");
                 if (hysteresis++ > 3) break;
             }
             

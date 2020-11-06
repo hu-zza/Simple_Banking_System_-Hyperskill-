@@ -5,8 +5,8 @@ import static banking.DataBaseReply.ReplyType.CLOSED;
 import static banking.DataBaseReply.ReplyType.EXISTS;
 import static banking.DataBaseReply.ReplyType.MODIFIED;
 import static banking.DataBaseReply.ReplyType.TRANSFERRED;
-import static banking.Main.database;
-import static banking.Main.scanner;
+import static banking.Main.DATABASE;
+import static banking.Main.SCANNER;
 import static banking.TransactionType.AUTHENTICATE_ACCOUNT;
 import static banking.TransactionType.CHECK_ACCOUNT_EXISTENCE;
 import static banking.TransactionType.CLOSE_ACCOUNT;
@@ -29,22 +29,22 @@ abstract class AccountManager
         String cardNumber;
         String pinCode;
         
-        scanner.nextLine();
+        SCANNER.nextLine();
         
         System.out.printf("%nEnter your card number:%n");
-        cardNumber = scanner
+        cardNumber = SCANNER
                              .nextLine()
                              .strip();
         
         System.out.println("Enter your PIN:");
-        pinCode = scanner
+        pinCode = SCANNER
                           .nextLine()
                           .strip();
         
         if (cardNumber.length() == 16 && pinCode.length() == 4)
         {
             Account tmpAccount  = Account.createExistingAccount(cardNumber, pinCode);
-            DataBaseReply reply = database.processQuery(new DataBaseQuery(AUTHENTICATE_ACCOUNT, tmpAccount));
+            DataBaseReply reply = DATABASE.processQuery(new DataBaseQuery(AUTHENTICATE_ACCOUNT, tmpAccount));
             
             if (reply.isType(AUTHENTICATED))
             {
@@ -94,12 +94,12 @@ abstract class AccountManager
         
         System.out.printf("%nEnter income:%n");
         
-        scanner.nextLine();
-        String[] transactionDetails = {scanner.nextLine().strip()};
+        SCANNER.nextLine();
+        String[] transactionDetails = {SCANNER.nextLine().strip()};
         
         synchronizeAccount();
         DataBaseReply reply;
-        reply = database.processQuery(new DataBaseQuery(MODIFY_BALANCE, account, transactionDetails));
+        reply = DATABASE.processQuery(new DataBaseQuery(MODIFY_BALANCE, account, transactionDetails));
         
         System.out.println(reply.isType(MODIFIED) ? "Income was added!" : reply.getDetails()[0]);
         System.out.println();
@@ -113,8 +113,8 @@ abstract class AccountManager
         
         System.out.print("%nEnter how much money you want to withdraw:%n");
         
-        scanner.nextLine();
-        String amount = scanner
+        SCANNER.nextLine();
+        String amount = SCANNER
                                 .nextLine()
                                 .strip();
         
@@ -122,7 +122,7 @@ abstract class AccountManager
         
         synchronizeAccount();
         DataBaseReply reply;
-        reply = database.processQuery(new DataBaseQuery(MODIFY_BALANCE, account, transactionDetails));
+        reply = DATABASE.processQuery(new DataBaseQuery(MODIFY_BALANCE, account, transactionDetails));
         
         System.out.println(reply.isType(MODIFIED) ? "Success!" : reply.getDetails()[0]);
         System.out.println();
@@ -136,8 +136,8 @@ abstract class AccountManager
         
         System.out.printf("%nTransfer%nEnter card number:%n");
         
-        scanner.nextLine();
-        String payeeCardNumber = scanner
+        SCANNER.nextLine();
+        String payeeCardNumber = SCANNER
                                          .nextLine()
                                          .strip();
         
@@ -153,7 +153,7 @@ abstract class AccountManager
         {
             System.out.println("Probably you made mistake in the card number. Please try again!");
         }
-        else if (database
+        else if (DATABASE
                          .processQuery(new DataBaseQuery(CHECK_ACCOUNT_EXISTENCE, payeeWrapperAccount))
                          .isNotType(EXISTS))
         {
@@ -162,7 +162,7 @@ abstract class AccountManager
         else
         {
             System.out.println("Enter how much money you want to transfer:");
-            String amountToTransfer = scanner
+            String amountToTransfer = SCANNER
                                               .nextLine()
                                               .strip();
             
@@ -175,7 +175,7 @@ abstract class AccountManager
             else
             {
                 DataBaseReply reply;
-                reply = database.processQuery(new DataBaseQuery(DO_TRANSFER,
+                reply = DATABASE.processQuery(new DataBaseQuery(DO_TRANSFER,
                                                                 account,
                                                                 new String[] {amountToTransfer},
                                                                 payeeWrapperAccount
@@ -195,7 +195,7 @@ abstract class AccountManager
         
         synchronizeAccount();
         DataBaseReply reply;
-        reply = database.processQuery(new DataBaseQuery(CLOSE_ACCOUNT, account));
+        reply = DATABASE.processQuery(new DataBaseQuery(CLOSE_ACCOUNT, account));
         
         System.out.println();
         System.out.println(reply.isType(CLOSED) ? "The account has been closed!" : reply.getDetails()[0]);
@@ -211,6 +211,6 @@ abstract class AccountManager
     
     private static void synchronizeAccount()
     {
-        database.processQuery(new DataBaseQuery(SYNCHRONIZE_ACCOUNT, account));
+        DATABASE.processQuery(new DataBaseQuery(SYNCHRONIZE_ACCOUNT, account));
     }
 }

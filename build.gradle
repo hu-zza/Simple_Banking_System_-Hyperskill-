@@ -3,7 +3,7 @@ plugins {
     id 'application'
 }
 
-group 'hu.kutatok'
+group 'hu.zza'
 version '1.0-SNAPSHOT'
 
 repositories {

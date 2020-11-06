@@ -13,9 +13,9 @@ import java.util.function.Supplier;
 
 class MenuEntry
 {
-    protected final String             name;
-    protected final Position[]         links;
-    protected final Supplier<Position> function;
+    private final String             NAME;
+    private final Position[]         LINKS;
+    private final Supplier<Position> FUNCTION;
     
     
     
@@ -34,9 +34,9 @@ class MenuEntry
     // Full-fledged, low-level constructor
     private MenuEntry(String name, Position[] links, Supplier<Position> function)
     {
-        this.name     = name;
-        this.links    = links.clone();
-        this.function = function;
+        this.NAME     = name;
+        this.LINKS    = links.clone();
+        this.FUNCTION = function;
     }
     
     static Position nullFunction()
@@ -48,18 +48,18 @@ class MenuEntry
     
     // INSTANCE METHODS
     
-    String getName()
+    String getNAME()
     {
-        return name;
+        return NAME;
     }
     
-    Position[] getLinks()
+    Position[] getLINKS()
     {
-        return links;
+        return LINKS;
     }
     
     Position get()
     {
-        return function.get();
+        return FUNCTION.get();
     }
 }

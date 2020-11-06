@@ -11,8 +11,8 @@ import static banking.Secret.USERNAME;
 
 public class Main
 {
-    final static   Scanner  scanner             = new Scanner(System.in);
-    final static   DataBase database            = new DataBase(URL, USERNAME, PASSWORD);
+    final static   Scanner  SCANNER             = new Scanner(System.in);
+    final static   DataBase DATABASE            = new DataBase(URL, USERNAME, PASSWORD);
     private static boolean  waitingForUserInput = true;
     
     public static void main(String[] args)
@@ -20,7 +20,7 @@ public class Main
         
         var menu = new Menu();
         
-        try (scanner)
+        try (SCANNER)
         {
             if (connectDataBase())
             {
@@ -29,7 +29,7 @@ public class Main
                 {
                     menu.listOptions();
                     
-                    selected = scanner.nextInt();
+                    selected = SCANNER.nextInt();
                     menu.chooseOption(selected);
                     
                     if (selected == 0) waitingForUserInput = false;
@@ -48,17 +48,19 @@ public class Main
     
     private static boolean connectDataBase()
     {
-        return DataBase.executeWithHysteresis(database::connect,
-                                              CONNECTED,
-                                              "The program could not open the connection to the database."
+        return DataBase.executeWithHysteresis(
+                DATABASE::connect,
+                CONNECTED,
+                "The program could not open the connection to the database."
         );
     }
     
     private static boolean closeDataBase()
     {
-        return DataBase.executeWithHysteresis(database::close,
-                                              NOT_CONNECTED,
-                                              "The program could not close the connection to the database."
+        return DataBase.executeWithHysteresis(
+                DATABASE::close,
+                NOT_CONNECTED,
+                "The program could not close the connection to the database."
         );
         
     }

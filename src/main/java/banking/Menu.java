@@ -2,11 +2,9 @@ package banking;
 
 import java.util.HashMap;
 
-
 class Menu
 {
     private static final HashMap<Position, MenuEntry> MENU = MenuStructure.MENU;
-    private static final MenuEntry                    NULL = new MenuEntry("", new Position[0]);
     
     private Position[] availablePositions;
     
@@ -29,7 +27,7 @@ class Menu
         
         for (int i = 1; i < availablePositions.length; i++)
         {
-            System.out.printf("%d. %s%n", i, getMenuEntry(availablePositions[i]).getName());
+            System.out.printf("%d. %s%n", i, getMenuEntry(availablePositions[i]).getNAME());
         }
         
         System.out.println("0. Exit");
@@ -41,7 +39,7 @@ class Menu
         {
             Position pos = availablePositions[optionNr];
             
-            setPosition(pos.isLeaf ? getMenuEntry(pos).get() : pos);
+            setPosition(pos.IS_LEAF ? getMenuEntry(pos).get() : pos);
         }
         else
         {
@@ -51,11 +49,11 @@ class Menu
     
     private void setPosition(Position position)
     {
-        availablePositions = getMenuEntry(position).getLinks();
+        availablePositions = getMenuEntry(position).getLINKS();
     }
     
     private MenuEntry getMenuEntry(Position position)
     {
-        return MENU.getOrDefault(position, NULL);
+        return MENU.getOrDefault(position, new MenuEntry("", new Position[0]));
     }
 }

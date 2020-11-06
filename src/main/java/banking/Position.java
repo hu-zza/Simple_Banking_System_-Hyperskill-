@@ -20,10 +20,10 @@ enum Position
     GET_BALANCE(true), ADD_INCOME(true), DO_WITHDRAWAL(true), DO_TRANSFER(true);
     
     
-    final boolean isLeaf;
+    final boolean IS_LEAF;
     
     Position(boolean isLeaf)
     {
-        this.isLeaf = isLeaf;
+        this.IS_LEAF = isLeaf;
     }
 }
