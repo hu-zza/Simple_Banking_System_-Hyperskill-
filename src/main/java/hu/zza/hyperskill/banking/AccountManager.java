@@ -1,18 +1,21 @@
-package banking;
+package hu.zza.hyperskill.banking;
 
-import static banking.DataBaseReply.ReplyType.AUTHENTICATED;
-import static banking.DataBaseReply.ReplyType.CLOSED;
-import static banking.DataBaseReply.ReplyType.EXISTS;
-import static banking.DataBaseReply.ReplyType.MODIFIED;
-import static banking.DataBaseReply.ReplyType.TRANSFERRED;
-import static banking.Main.DATABASE;
-import static banking.Main.SCANNER;
-import static banking.TransactionType.AUTHENTICATE_ACCOUNT;
-import static banking.TransactionType.CHECK_ACCOUNT_EXISTENCE;
-import static banking.TransactionType.CLOSE_ACCOUNT;
-import static banking.TransactionType.DO_TRANSFER;
-import static banking.TransactionType.MODIFY_BALANCE;
-import static banking.TransactionType.SYNCHRONIZE_ACCOUNT;
+import hu.zza.hyperskill.banking.db.DB_Query;
+import hu.zza.hyperskill.banking.db.DB_Reply;
+
+import static hu.zza.hyperskill.banking.Main.DATABASE;
+import static hu.zza.hyperskill.banking.Main.SCANNER;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.AUTHENTICATED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CLOSED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.EXISTS;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.MODIFIED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.TRANSFERRED;
+import static hu.zza.hyperskill.banking.db.TransactionType.AUTHENTICATE_ACCOUNT;
+import static hu.zza.hyperskill.banking.db.TransactionType.CHECK_ACCOUNT_EXISTENCE;
+import static hu.zza.hyperskill.banking.db.TransactionType.CLOSE_ACCOUNT;
+import static hu.zza.hyperskill.banking.db.TransactionType.DO_TRANSFER;
+import static hu.zza.hyperskill.banking.db.TransactionType.MODIFY_BALANCE;
+import static hu.zza.hyperskill.banking.db.TransactionType.SYNCHRONIZE_ACCOUNT;
 
 // TO-DO:
 // PATTERN CHECK FOR INPUT!!!
@@ -24,7 +27,7 @@ abstract class AccountManager
     private static Account account;
     
     
-    static Position loginAccount()
+    static int loginAccount()
     {
         String cardNumber;
         String pinCode;
@@ -43,8 +46,8 @@ abstract class AccountManager
         
         if (cardNumber.length() == 16 && pinCode.length() == 4)
         {
-            Account tmpAccount  = Account.createExistingAccount(cardNumber, pinCode);
-            DataBaseReply reply = DATABASE.processQuery(new DataBaseQuery(AUTHENTICATE_ACCOUNT, tmpAccount));
+            Account  tmpAccount = Account.createExistingAccount(cardNumber, pinCode);
+            DB_Reply reply      = DATABASE.processQuery(new DB_Query(AUTHENTICATE_ACCOUNT, tmpAccount));
             
             if (reply.isType(AUTHENTICATED))
             {
@@ -52,7 +55,7 @@ abstract class AccountManager
                 account  = tmpAccount;
                 synchronizeAccount();
                 System.out.printf("%nYou have successfully logged in!%n%n");
-                return Position.ACCOUNT;
+                return 0; // Position.ACCOUNT
             }
             else
             {
@@ -61,36 +64,39 @@ abstract class AccountManager
             }
         }
         System.out.printf("%nWrong card number or PIN!%n%n");
-        return Position.ROOT;
+        return 1; // Position.ROOT
     }
     
-    static Position logoutAccount()
-    {
-        loggedIn = false;
-        account  = null;
-        
-        System.out.printf("%nYou have successfully logged out!%n%n");
-        return Position.ROOT;
-    }
     
     
     /////////////////////
     // ONLY AFTER LOGIN
-    
-    static Position getBalance()
+
+    static int logoutAccount()
     {
-        if (!loggedIn) return Position.ROOT;
+        if (!loggedIn) return 1; // Position.ROOT
+    
+        loggedIn = false;
+        account  = null;
+    
+        System.out.printf("%nYou have successfully logged out!%n%n");
+        return 0; // Position.ROOT
+    }
+    
+    static int getBalance()
+    {
+        if (!loggedIn) return 1; // Position.ROOT
         
         synchronizeAccount();
         System.out.printf("%nBalance: %d%n%n", account.getBalance());
         
-        return Position.ACCOUNT;
+        return 0; // Position.ACCOUNT
     }
     
     
-    static Position addIncome()
+    static int addIncome()
     {
-        if (!loggedIn) return Position.ROOT;
+        if (!loggedIn) return 1; // Position.ROOT
         
         System.out.printf("%nEnter income:%n");
         
@@ -98,18 +104,18 @@ abstract class AccountManager
         String[] transactionDetails = {SCANNER.nextLine().strip()};
         
         synchronizeAccount();
-        DataBaseReply reply;
-        reply = DATABASE.processQuery(new DataBaseQuery(MODIFY_BALANCE, account, transactionDetails));
+        DB_Reply reply;
+        reply = DATABASE.processQuery(new DB_Query(MODIFY_BALANCE, account, transactionDetails));
         
         System.out.println(reply.isType(MODIFIED) ? "Income was added!" : reply.getDetails()[0]);
         System.out.println();
         
-        return Position.ACCOUNT;
+        return 0; // Position.ACCOUNT
     }
     
-    static Position doWithdrawal()
+    static int doWithdrawal()
     {
-        if (!loggedIn) return Position.ROOT;
+        if (!loggedIn) return 1; // Position.ROOT
         
         System.out.print("%nEnter how much money you want to withdraw:%n");
         
@@ -121,18 +127,18 @@ abstract class AccountManager
         String[] transactionDetails = {amount.startsWith("-") ? amount : "-" + amount};
         
         synchronizeAccount();
-        DataBaseReply reply;
-        reply = DATABASE.processQuery(new DataBaseQuery(MODIFY_BALANCE, account, transactionDetails));
+        DB_Reply reply;
+        reply = DATABASE.processQuery(new DB_Query(MODIFY_BALANCE, account, transactionDetails));
         
         System.out.println(reply.isType(MODIFIED) ? "Success!" : reply.getDetails()[0]);
         System.out.println();
         
-        return Position.ACCOUNT;
+        return 0; // Position.ACCOUNT
     }
     
-    static Position doTransfer()
+    static int doTransfer()
     {
-        if (!loggedIn) return Position.ROOT;
+        if (!loggedIn) return 1; // Position.ROOT
         
         System.out.printf("%nTransfer%nEnter card number:%n");
         
@@ -154,7 +160,7 @@ abstract class AccountManager
             System.out.println("Probably you made mistake in the card number. Please try again!");
         }
         else if (DATABASE
-                         .processQuery(new DataBaseQuery(CHECK_ACCOUNT_EXISTENCE, payeeWrapperAccount))
+                         .processQuery(new DB_Query(CHECK_ACCOUNT_EXISTENCE, payeeWrapperAccount))
                          .isNotType(EXISTS))
         {
             System.out.println("Such a card does not exist.");
@@ -174,11 +180,11 @@ abstract class AccountManager
             }
             else
             {
-                DataBaseReply reply;
-                reply = DATABASE.processQuery(new DataBaseQuery(DO_TRANSFER,
-                                                                account,
-                                                                new String[] {amountToTransfer},
-                                                                payeeWrapperAccount
+                DB_Reply reply;
+                reply = DATABASE.processQuery(new DB_Query(DO_TRANSFER,
+                                                                   account,
+                                                                   new String[] {amountToTransfer},
+                                                                   payeeWrapperAccount
                 ));
                 
                 System.out.println(reply.isType(TRANSFERRED) ? "Success!" : reply.getDetails()[0]);
@@ -186,16 +192,16 @@ abstract class AccountManager
         }
         
         System.out.println();
-        return Position.ACCOUNT;
+        return 0; // Position.ACCOUNT
     }
     
-    static Position closeAccount()
+    static int closeAccount()
     {
-        if (!loggedIn) return Position.ROOT;
+        if (!loggedIn) return 1; // Position.ROOT
         
         synchronizeAccount();
-        DataBaseReply reply;
-        reply = DATABASE.processQuery(new DataBaseQuery(CLOSE_ACCOUNT, account));
+        DB_Reply reply;
+        reply = DATABASE.processQuery(new DB_Query(CLOSE_ACCOUNT, account));
         
         System.out.println();
         System.out.println(reply.isType(CLOSED) ? "The account has been closed!" : reply.getDetails()[0]);
@@ -203,7 +209,7 @@ abstract class AccountManager
         
         loggedIn = false;
         account  = null;
-        return Position.ROOT;
+        return 0; // Position.ROOT
     }
     
     
@@ -211,6 +217,6 @@ abstract class AccountManager
     
     private static void synchronizeAccount()
     {
-        DATABASE.processQuery(new DataBaseQuery(SYNCHRONIZE_ACCOUNT, account));
+        DATABASE.processQuery(new DB_Query(SYNCHRONIZE_ACCOUNT, account));
     }
 }

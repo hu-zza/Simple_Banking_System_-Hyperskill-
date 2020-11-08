@@ -3,7 +3,7 @@ plugins {
     id 'application'
 }
 
-group 'hu.zza'
+group 'hu.zza.hyperskill.banking'
 version '1.0-SNAPSHOT'
 
 repositories {

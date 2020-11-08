@@ -1,42 +1,43 @@
-package banking;
+package hu.zza.hyperskill.banking.db;
+
+import hu.zza.hyperskill.banking.Account;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static banking.DataBaseReply.ReplyType.AUTHENTICATED;
-import static banking.DataBaseReply.ReplyType.AVAILABLE;
-import static banking.DataBaseReply.ReplyType.CLOSED;
-import static banking.DataBaseReply.ReplyType.CREATED;
-import static banking.DataBaseReply.ReplyType.ERROR;
-import static banking.DataBaseReply.ReplyType.EXISTS;
-import static banking.DataBaseReply.ReplyType.MODIFIED;
-import static banking.DataBaseReply.ReplyType.NOT_EXISTS;
-import static banking.DataBaseReply.ReplyType.SYNCHRONIZED;
-import static banking.DataBaseReply.ReplyType.TRANSFERRED;
-import static banking.DataBaseReply.ReplyType.UPDATED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.AUTHENTICATED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.AVAILABLE;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CLOSED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CREATED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.ERROR;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.EXISTS;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.MODIFIED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.NOT_EXISTS;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.SYNCHRONIZED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.TRANSFERRED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.UPDATED;
 
 
-abstract class DataBaseLogic
+public abstract class DB_Logic
 {
     
     // INSTANCE METHODS on database
     
-    static DataBaseReply isExist(DataBase dataBase, DataBaseQuery dataBaseQuery)
+    static DB_Reply isExist(DataBase dataBase, DB_Query dataBaseQuery)
     {
-        var result = makeQuery(dataBase.getConnection(), String.format(
-                "SELECT * FROM card WHERE number = %s;",
-                dataBaseQuery
-                        .getAccount()
-                        .getCardNumber()
+        var result = makeQuery(dataBase.getConnection(), String.format("SELECT * FROM card WHERE number = %s;",
+                                                                       dataBaseQuery
+                                                                               .getAccount()
+                                                                               .getCardNumber()
         ));
         
-        return result.size() == 0 ? new DataBaseReply(NOT_EXISTS) : new DataBaseReply(EXISTS);
+        return result.size() == 0 ? new DB_Reply(NOT_EXISTS) : new DB_Reply(EXISTS);
     }
     
     
-    static DataBaseReply addAccount(DataBase dataBase, DataBaseQuery dataBaseQuery)
+    static DB_Reply addAccount(DataBase dataBase, DB_Query dataBaseQuery)
     {
         Account account = dataBaseQuery.getAccount();
         
@@ -47,10 +48,10 @@ abstract class DataBaseLogic
                 account.getBalance()
         ));
         
-        return result == 1 ? new DataBaseReply(CREATED) : new DataBaseReply(ERROR);
+        return result == 1 ? new DB_Reply(CREATED) : new DB_Reply(ERROR);
     }
     
-    static DataBaseReply authenticateAccount(DataBase dataBase, DataBaseQuery dataBaseQuery)
+    static DB_Reply authenticateAccount(DataBase dataBase, DB_Query dataBaseQuery)
     {
         Account account = dataBaseQuery.getAccount();
         
@@ -63,15 +64,15 @@ abstract class DataBaseLogic
         if (result.size() == 1)
         {
             account.setDatabaseId(Integer.parseInt(result.get(0)[0]));
-            return new DataBaseReply(AUTHENTICATED);
+            return new DB_Reply(AUTHENTICATED);
         }
         else
         {
-            return new DataBaseReply(ERROR);
+            return new DB_Reply(ERROR);
         }
     }
     
-    static DataBaseReply synchronizeAccount(DataBase dataBase, DataBaseQuery dataBaseQuery)
+    static DB_Reply synchronizeAccount(DataBase dataBase, DB_Query dataBaseQuery)
     {
         Account account = dataBaseQuery.getAccount();
         
@@ -87,20 +88,20 @@ abstract class DataBaseLogic
             account.setBalance(Integer.parseInt(result.get(0)[3]));
             // Another setter callings...
             
-            return new DataBaseReply(SYNCHRONIZED);
+            return new DB_Reply(SYNCHRONIZED);
         }
         else
         {
-            return new DataBaseReply(ERROR);
+            return new DB_Reply(ERROR);
         }
     }
     
-    static DataBaseReply updateAccount(DataBase dataBase, DataBaseQuery dataBaseQuery)
+    static DB_Reply updateAccount(DataBase dataBase, DB_Query dataBaseQuery)
     {
-        return new DataBaseReply(UPDATED, "This is feature is not implemented yet.");
+        return new DB_Reply(UPDATED, "This is feature is not implemented yet.");
     }
     
-    static DataBaseReply deleteAccount(DataBase dataBase, DataBaseQuery dataBaseQuery)
+    static DB_Reply deleteAccount(DataBase dataBase, DB_Query dataBaseQuery)
     {
         Account account = dataBaseQuery.getAccount();
         
@@ -111,10 +112,10 @@ abstract class DataBaseLogic
                 account.getPinCode()
         ));
         
-        return result == 1 ? new DataBaseReply(CLOSED) : new DataBaseReply(ERROR);
+        return result == 1 ? new DB_Reply(CLOSED) : new DB_Reply(ERROR);
     }
     
-    static DataBaseReply modifyBalance(DataBase dataBase, DataBaseQuery dataBaseQuery)
+    static DB_Reply modifyBalance(DataBase dataBase, DB_Query dataBaseQuery)
     {
         Account account = dataBaseQuery.getAccount();
         
@@ -124,7 +125,7 @@ abstract class DataBaseLogic
         // WITHDRAWAL: Check if the account's balance has enough funds.
         if (amountToAdd < 0)
         {
-            DataBaseReply reply = checkAvailableFunds(dataBase, account, amountToAdd);
+            DB_Reply reply = checkAvailableFunds(dataBase, account, amountToAdd);
             if (reply.isType(ERROR)) return reply;
         }
         
@@ -136,13 +137,13 @@ abstract class DataBaseLogic
                 account.getPinCode()
         ));
         
-        return result == 1 ? new DataBaseReply(MODIFIED) : new DataBaseReply(ERROR);
+        return result == 1 ? new DB_Reply(MODIFIED) : new DB_Reply(ERROR);
     }
     
-    static DataBaseReply doTransfer(DataBase dataBase, DataBaseQuery dataBaseQuery)
+    static DB_Reply doTransfer(DataBase dataBase, DB_Query dataBaseQuery)
     {
         Account ownerAccount = dataBaseQuery.getAccount();
-        // banking.DataBaseQuery has capacity for multiple payee accounts...
+        // hu.zza.hyperskill.banking.DataBaseQuery has capacity for multiple payee accounts...
         // But it is not implemented yet.
         Account payeeAccount = dataBaseQuery.getAdditionalAccounts()[0];
         
@@ -151,29 +152,29 @@ abstract class DataBaseLogic
         
         if (Objects.equals(ownerAccount.getCardNumber(), payeeAccount.getCardNumber()))
         {
-            return new DataBaseReply(ERROR, "You can not transfer money to the same account!");
+            return new DB_Reply(ERROR, "You can not transfer money to the same account!");
         }
         
         if (amountToTransfer <= 0)
         {
-            return new DataBaseReply(ERROR, "The transferred amount of money has to be greater than zero.");
+            return new DB_Reply(ERROR, "The transferred amount of money has to be greater than zero.");
         }
         
         // Check if the account's balance has enough funds.
-        DataBaseReply reply = checkAvailableFunds(dataBase, ownerAccount, amountToTransfer);
+        DB_Reply reply = checkAvailableFunds(dataBase, ownerAccount, amountToTransfer);
         if (reply.isType(ERROR)) return reply;
         
         
-        reply = isExist(dataBase, new DataBaseQuery(
-                TransactionType.CHECK_ACCOUNT_EXISTENCE,
-                Account.createWrapperAccount(payeeAccount.getCardNumber())
-        ));
+        reply = isExist(dataBase,
+                        new DB_Query(TransactionType.CHECK_ACCOUNT_EXISTENCE,
+                                     Account.createWrapperAccount(payeeAccount.getCardNumber())
+                        )
+        );
         if (reply.isType(NOT_EXISTS)) return reply;
         
         
         var result = makeUpdate(dataBase.getConnection(), String.format(
-                "UPDATE card SET balance = balance - %d WHERE id = %d AND number = '%s' AND pin = '%s';"
-                + "UPDATE card SET balance = balance + %1$d WHERE number = '%s';",
+                "UPDATE card SET balance = balance - %d WHERE id = %d AND number = '%s' AND pin = '%s';" + "UPDATE card SET balance = balance + %1$d WHERE number = '%s';",
                 amountToTransfer,
                 ownerAccount.getDatabaseId(),
                 ownerAccount.getCardNumber(),
@@ -181,13 +182,13 @@ abstract class DataBaseLogic
                 payeeAccount.getCardNumber()
         ));
         
-        return result == 1 ? new DataBaseReply(TRANSFERRED) : new DataBaseReply(ERROR);
+        return result == 1 ? new DB_Reply(TRANSFERRED) : new DB_Reply(ERROR);
     }
     
     
     // MID-LEVEL XD
     
-    private static DataBaseReply checkAvailableFunds(DataBase dataBase, Account account, int requiredAmount)
+    private static DB_Reply checkAvailableFunds(DataBase dataBase, Account account, int requiredAmount)
     {
         var result = makeQuery(dataBase.getConnection(), String.format(
                 "SELECT * FROM card WHERE id = %d AND number = '%s';",
@@ -197,10 +198,10 @@ abstract class DataBaseLogic
         
         if (Integer.parseInt(result.get(0)[3]) < requiredAmount)
         {
-            return new DataBaseReply(ERROR, "Insufficient funds for the requested transaction.");
+            return new DB_Reply(ERROR, "Insufficient funds for the requested transaction.");
         }
         
-        return new DataBaseReply(AVAILABLE);
+        return new DB_Reply(AVAILABLE);
     }
     
     

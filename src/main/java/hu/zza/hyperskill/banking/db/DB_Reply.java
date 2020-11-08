@@ -1,14 +1,14 @@
-package banking;
+package hu.zza.hyperskill.banking.db;
 
 import java.util.Objects;
 
 
-class DataBaseReply
+public class DB_Reply
 {
     private final ReplyType replyType;
     private final String[]  details;
     
-    DataBaseReply(ReplyType replyType, String... details)
+    public DB_Reply(ReplyType replyType, String... details)
     {
         this.replyType = replyType;
         this.details   = details.clone();
@@ -19,22 +19,22 @@ class DataBaseReply
         return replyType;
     }
     
-    boolean isType(ReplyType replyType)
+    public boolean isType(ReplyType replyType)
     {
         return Objects.equals(this.replyType, replyType);
     }
     
-    boolean isNotType(ReplyType replyType)
+    public boolean isNotType(ReplyType replyType)
     {
         return !isType(replyType);
     }
     
-    String[] getDetails()
+    public String[] getDetails()
     {
         return details.clone();
     }
     
-    enum ReplyType
+    public enum ReplyType
     {
         ERROR,
         

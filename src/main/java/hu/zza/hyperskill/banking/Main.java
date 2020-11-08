@@ -1,12 +1,15 @@
-package banking;
+package hu.zza.hyperskill.banking;
+
+import hu.zza.hyperskill.banking.db.DataBase;
+import hu.zza.hyperskill.banking.menu.Menu;
 
 import java.util.Scanner;
 
-import static banking.DataBaseReply.ReplyType.CONNECTED;
-import static banking.DataBaseReply.ReplyType.NOT_CONNECTED;
-import static banking.Secret.PASSWORD;
-import static banking.Secret.URL;
-import static banking.Secret.USERNAME;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CONNECTED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.NOT_CONNECTED;
+import static hu.zza.hyperskill.banking.Secret.PASSWORD;
+import static hu.zza.hyperskill.banking.Secret.URL;
+import static hu.zza.hyperskill.banking.Secret.USERNAME;
 
 
 public class Main
@@ -18,7 +21,7 @@ public class Main
     public static void main(String[] args)
     {
         
-        var menu = new Menu();
+        Menu menu = MenuInitializer.initialize();
         
         try (SCANNER)
         {
@@ -30,6 +33,7 @@ public class Main
                     menu.listOptions();
                     
                     selected = SCANNER.nextInt();
+
                     menu.chooseOption(selected);
                     
                     if (selected == 0) waitingForUserInput = false;
@@ -38,12 +42,12 @@ public class Main
         }
     }
     
-    static Position exit()
+    static int exit()
     {
         closeDataBase();
         
         System.out.printf("%nBye!");
-        return Position.ROOT;
+        return 0;
     }
     
     private static boolean connectDataBase()

@@ -1,25 +1,25 @@
-package banking;
+package hu.zza.hyperskill.banking.db;
 
-import banking.DataBaseReply.ReplyType;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
-import static banking.DataBaseReply.ReplyType.CONNECTED;
-import static banking.DataBaseReply.ReplyType.ERROR;
-import static banking.DataBaseReply.ReplyType.NOT_CONNECTED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CONNECTED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.ERROR;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.NOT_CONNECTED;
 
 
-class DataBase
+public class DataBase
 {
     private final String     URL;
     private final String     USERNAME;
     private final String     PASSWORD;
     private       Connection connection;
     
-    DataBase(String url, String username, String password)
+    public DataBase(String url, String username, String password)
     {
         this.URL      = url;
         this.USERNAME = username;
@@ -37,14 +37,14 @@ class DataBase
      * @return true - if executed successfully //
      *         false - if an error occurs
      */
-    static boolean executeWithHysteresis(Supplier<DataBaseReply> methodToExecute,
-                                         ReplyType targetReplyType,
-                                         String... timeoutMessages
+    public static boolean executeWithHysteresis(Supplier<DB_Reply> methodToExecute,
+                                                ReplyType targetReplyType,
+                                                String... timeoutMessages
     )
     {
-        DataBaseReply reply;
-        int           hysteresis = 3;
-        int           counter    = 0;
+        DB_Reply reply;
+        int      hysteresis = 3;
+        int      counter    = 0;
         
         do
         {
@@ -71,7 +71,7 @@ class DataBase
     
     // CONNECTION: establish, get, close
     
-    DataBaseReply connect()
+    public DB_Reply connect()
     {
         var dataSource = new MysqlDataSource();
         dataSource.setURL(URL);
@@ -88,13 +88,13 @@ class DataBase
         return isConnected();
     }
     
-    DataBaseReply isConnected()
+    DB_Reply isConnected()
     {
         if (connection != null)
         {
             try
             {
-                return connection.isValid(3) ? new DataBaseReply(CONNECTED) : new DataBaseReply(NOT_CONNECTED);
+                return connection.isValid(3) ? new DB_Reply(CONNECTED) : new DB_Reply(NOT_CONNECTED);
             }
             catch (SQLException e)
             {
@@ -103,7 +103,7 @@ class DataBase
         }
         else
         {
-            return new DataBaseReply(NOT_CONNECTED);
+            return new DB_Reply(NOT_CONNECTED);
         }
     }
     
@@ -113,7 +113,7 @@ class DataBase
     }
     
     
-    DataBaseReply close()
+    public DB_Reply close()
     {
         try
         {
@@ -123,15 +123,15 @@ class DataBase
         {
             return makeErrorReply(e, "SQLException when closing the connection:%n%s%n%n");
         }
-        return new DataBaseReply(NOT_CONNECTED);
+        return new DB_Reply(NOT_CONNECTED);
     }
     
     
     // QUERY PROCESSING
     
-    DataBaseReply processQuery(DataBaseQuery dataBaseQuery)
+    public DB_Reply processQuery(DB_Query dataBaseQuery)
     {
-        if (isConnected().isNotType(CONNECTED)) return new DataBaseReply(NOT_CONNECTED);
+        if (isConnected().isNotType(CONNECTED)) return new DB_Reply(NOT_CONNECTED);
         
         try
         {
@@ -146,10 +146,10 @@ class DataBase
     
     // LOW-LEVEL
     
-    private DataBaseReply makeErrorReply(Exception exception, String messageFormat)
+    private DB_Reply makeErrorReply(Exception exception, String messageFormat)
     {
         String msg = String.format(messageFormat, exception);
         System.err.print(msg);
-        return new DataBaseReply(ERROR, msg);
+        return new DB_Reply(ERROR, msg);
     }
 }

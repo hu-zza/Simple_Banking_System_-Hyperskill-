@@ -1,21 +1,25 @@
-package banking;
+package hu.zza.hyperskill.banking;
+
+import hu.zza.hyperskill.banking.db.DB_Query;
+import hu.zza.hyperskill.banking.db.DB_Reply;
+import hu.zza.hyperskill.banking.db.DataBase;
 
 import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import static banking.DataBaseReply.ReplyType.AUTHENTICATED;
-import static banking.DataBaseReply.ReplyType.CONNECTED;
-import static banking.DataBaseReply.ReplyType.CREATED;
-import static banking.DataBaseReply.ReplyType.EXISTS;
-import static banking.DataBaseReply.ReplyType.NOT_CONNECTED;
-import static banking.Main.DATABASE;
-import static banking.TransactionType.ADD_ACCOUNT_TO_DATABASE;
-import static banking.TransactionType.AUTHENTICATE_ACCOUNT;
-import static banking.TransactionType.CHECK_ACCOUNT_EXISTENCE;
+import static hu.zza.hyperskill.banking.Main.DATABASE;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.AUTHENTICATED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CONNECTED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CREATED;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.EXISTS;
+import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.NOT_CONNECTED;
+import static hu.zza.hyperskill.banking.db.TransactionType.ADD_ACCOUNT_TO_DATABASE;
+import static hu.zza.hyperskill.banking.db.TransactionType.AUTHENTICATE_ACCOUNT;
+import static hu.zza.hyperskill.banking.db.TransactionType.CHECK_ACCOUNT_EXISTENCE;
 
 
-class Account
+public class Account
 {
     private static final Random rndGenerator = new Random();
     private static final String BIN          = "400000";
@@ -44,15 +48,15 @@ class Account
         return new Account(cardNumber, pinCode);
     }
     
-    static Account createWrapperAccount(String cardNumber)
+    public static Account createWrapperAccount(String cardNumber)
     {
         return new Account(cardNumber, "");
     }
     
-    static Position createNewAccount()
+    static int createNewAccount()
     {
         var cardNumber = generateCardNumber();
-        if (cardNumber == null) return Position.ROOT;
+        if (cardNumber == null) return 1;
         
         var pinCode = rndGenerator
                               .ints(4, 0, 10)
@@ -60,13 +64,13 @@ class Account
                               .collect(Collectors.joining());
         
         
-        DataBaseReply reply;
-        DataBaseReply auth;
-        Account       tmpAccount = new Account(cardNumber, pinCode);
+        DB_Reply reply;
+        DB_Reply auth;
+        Account  tmpAccount = new Account(cardNumber, pinCode);
         
-        reply = DATABASE.processQuery(new DataBaseQuery(ADD_ACCOUNT_TO_DATABASE, tmpAccount));
+        reply = DATABASE.processQuery(new DB_Query(ADD_ACCOUNT_TO_DATABASE, tmpAccount));
         
-        auth = DATABASE.processQuery(new DataBaseQuery(AUTHENTICATE_ACCOUNT, tmpAccount));
+        auth = DATABASE.processQuery(new DB_Query(AUTHENTICATE_ACCOUNT, tmpAccount));
         
         
         if (reply.isType(CREATED) && auth.isType(AUTHENTICATED))
@@ -82,7 +86,7 @@ class Account
             System.out.println("Your card has not been created.");
         }
         
-        return Position.ROOT;
+        return 0;
     }
     
     static boolean verifyChecksum(String cardNumber)
@@ -100,9 +104,9 @@ class Account
     
     private static String generateCardNumber()
     {
-        String        tmpAccountNumber;
-        String        tmpCardNumber;
-        DataBaseReply reply;
+        String   tmpAccountNumber;
+        String   tmpCardNumber;
+        DB_Reply reply;
         
         int hysteresis = 0;
         do
@@ -114,8 +118,8 @@ class Account
             
             tmpCardNumber = BIN + tmpAccountNumber + calculateChecksum(BIN, tmpAccountNumber);
             
-            reply = DATABASE.processQuery(new DataBaseQuery(CHECK_ACCOUNT_EXISTENCE,
-                                                            Account.createWrapperAccount(tmpCardNumber)
+            reply = DATABASE.processQuery(new DB_Query(CHECK_ACCOUNT_EXISTENCE,
+                                                       Account.createWrapperAccount(tmpCardNumber)
             ));
             
             if (reply.isType(NOT_CONNECTED))
@@ -159,32 +163,32 @@ class Account
     
     // INSTANCE METHODS
     
-    String getCardNumber()
+    public String getCardNumber()
     {
         return cardNumber;
     }
     
-    String getPinCode()
+    public String getPinCode()
     {
         return pinCode;
     }
     
-    int getDatabaseId()
+    public int getDatabaseId()
     {
         return databaseId;
     }
     
-    void setDatabaseId(int databaseId)
+    public void setDatabaseId(int databaseId)
     {
         this.databaseId = databaseId;
     }
     
-    int getBalance()
+    public int getBalance()
     {
         return balance;
     }
     
-    void setBalance(int balance)
+    public void setBalance(int balance)
     {
         this.balance = balance;
     }

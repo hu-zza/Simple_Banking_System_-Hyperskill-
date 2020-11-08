@@ -1,22 +1,25 @@
-package banking;
+package hu.zza.hyperskill.banking.db;
 
 
-class DataBaseQuery
+import hu.zza.hyperskill.banking.Account;
+
+
+public class DB_Query
 {
     private final TransactionType transactionType;
     private final String[]        transactionDetails;
     private final Account         account;
     private final Account[]       additionalAccounts;
     
-    DataBaseQuery(TransactionType transactionType, Account account)
+    public DB_Query(TransactionType transactionType, Account account)
     {
         this(transactionType, account, new String[0]);
     }
     
-    DataBaseQuery(TransactionType transactionType,
-                  Account account,
-                  String[] transactionDetails,
-                  Account... additionalAccounts
+    public DB_Query(TransactionType transactionType,
+                    Account account,
+                    String[] transactionDetails,
+                    Account... additionalAccounts
     )
     {
         this.transactionType    = transactionType;
