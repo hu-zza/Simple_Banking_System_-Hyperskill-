@@ -7,31 +7,37 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.AUTHENTICATED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.AVAILABLE;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CLOSED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CREATED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.ERROR;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.EXISTS;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.MODIFIED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.NOT_EXISTS;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.SYNCHRONIZED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.TRANSFERRED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.UPDATED;
+import static hu.zza.hyperskill.banking.db.ReplyType.AUTHENTICATED;
+import static hu.zza.hyperskill.banking.db.ReplyType.AVAILABLE;
+import static hu.zza.hyperskill.banking.db.ReplyType.CLOSED;
+import static hu.zza.hyperskill.banking.db.ReplyType.CREATED;
+import static hu.zza.hyperskill.banking.db.ReplyType.ERROR;
+import static hu.zza.hyperskill.banking.db.ReplyType.EXISTS;
+import static hu.zza.hyperskill.banking.db.ReplyType.MODIFIED;
+import static hu.zza.hyperskill.banking.db.ReplyType.NOT_EXISTS;
+import static hu.zza.hyperskill.banking.db.ReplyType.SYNCHRONIZED;
+import static hu.zza.hyperskill.banking.db.ReplyType.TRANSFERRED;
+import static hu.zza.hyperskill.banking.db.ReplyType.UPDATED;
 
 
-public abstract class DB_Logic
+/////////////////////////////////////
+// Utility class for DB manipulation.
+
+abstract class DB_Logic
 {
     
     // INSTANCE METHODS on database
     
     static DB_Reply isExist(DataBase dataBase, DB_Query dataBaseQuery)
     {
-        var result = makeQuery(dataBase.getConnection(), String.format("SELECT * FROM card WHERE number = %s;",
-                                                                       dataBaseQuery
-                                                                               .getAccount()
-                                                                               .getCardNumber()
-        ));
+        var result = makeQuery(dataBase.getConnection(),
+                               String.format(
+                                       "SELECT * FROM card WHERE number = %s;",
+                                       dataBaseQuery
+                                               .getAccount()
+                                               .getCardNumber()
+                               )
+        );
         
         return result.size() == 0 ? new DB_Reply(NOT_EXISTS) : new DB_Reply(EXISTS);
     }
@@ -143,8 +149,8 @@ public abstract class DB_Logic
     static DB_Reply doTransfer(DataBase dataBase, DB_Query dataBaseQuery)
     {
         Account ownerAccount = dataBaseQuery.getAccount();
-        // hu.zza.hyperskill.banking.DataBaseQuery has capacity for multiple payee accounts...
-        // But it is not implemented yet.
+        // hu.zza.hyperskill.banking.db.DB_Query has capacity for multiple payee accounts...
+        // But it has not implemented yet.
         Account payeeAccount = dataBaseQuery.getAdditionalAccounts()[0];
         
         // amountToTransfer can be only a positive number.
@@ -174,7 +180,8 @@ public abstract class DB_Logic
         
         
         var result = makeUpdate(dataBase.getConnection(), String.format(
-                "UPDATE card SET balance = balance - %d WHERE id = %d AND number = '%s' AND pin = '%s';" + "UPDATE card SET balance = balance + %1$d WHERE number = '%s';",
+                "UPDATE card SET balance = balance - %d WHERE id = %d AND number = '%s' AND pin = '%s';"
+                + "UPDATE card SET balance = balance + %1$d WHERE number = '%s';",
                 amountToTransfer,
                 ownerAccount.getDatabaseId(),
                 ownerAccount.getCardNumber(),
@@ -215,9 +222,11 @@ public abstract class DB_Logic
         {
             try (var resultSet = statement.executeQuery(sqlStatement))
             {
-                int columnsCount = resultSet
-                                           .getMetaData()
-                                           .getColumnCount();
+                int
+                        columnsCount =
+                        resultSet
+                                .getMetaData()
+                                .getColumnCount();
                 var row = new String[columnsCount];
                 
                 while (resultSet.next())

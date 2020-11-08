@@ -9,11 +9,11 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import static hu.zza.hyperskill.banking.Main.DATABASE;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.AUTHENTICATED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CONNECTED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CREATED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.EXISTS;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.NOT_CONNECTED;
+import static hu.zza.hyperskill.banking.db.ReplyType.AUTHENTICATED;
+import static hu.zza.hyperskill.banking.db.ReplyType.CONNECTED;
+import static hu.zza.hyperskill.banking.db.ReplyType.CREATED;
+import static hu.zza.hyperskill.banking.db.ReplyType.EXISTS;
+import static hu.zza.hyperskill.banking.db.ReplyType.NOT_CONNECTED;
 import static hu.zza.hyperskill.banking.db.TransactionType.ADD_ACCOUNT_TO_DATABASE;
 import static hu.zza.hyperskill.banking.db.TransactionType.AUTHENTICATE_ACCOUNT;
 import static hu.zza.hyperskill.banking.db.TransactionType.CHECK_ACCOUNT_EXISTENCE;
@@ -36,8 +36,8 @@ public class Account
         // so fields 'databaseId' and 'balance'
         // get value only after auth / sync with it.
         //
-        // More info: DataBaseLogic::authenticateAccount
-        //            DataBaseLogic::synchronizeAccount
+        // More info: db.DB_Logic::authenticateAccount
+        //            db.DB_Logic::synchronizeAccount
         
         this.cardNumber = cardNumber;
         this.pinCode    = pinCode;

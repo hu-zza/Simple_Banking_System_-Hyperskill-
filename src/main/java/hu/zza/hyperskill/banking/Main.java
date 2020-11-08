@@ -1,12 +1,11 @@
 package hu.zza.hyperskill.banking;
 
 import hu.zza.hyperskill.banking.db.DataBase;
+import hu.zza.hyperskill.banking.db.ReplyType;
 import hu.zza.hyperskill.banking.menu.Menu;
 
 import java.util.Scanner;
 
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CONNECTED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.NOT_CONNECTED;
 import static hu.zza.hyperskill.banking.Secret.PASSWORD;
 import static hu.zza.hyperskill.banking.Secret.URL;
 import static hu.zza.hyperskill.banking.Secret.USERNAME;
@@ -33,7 +32,7 @@ public class Main
                     menu.listOptions();
                     
                     selected = SCANNER.nextInt();
-
+                    
                     menu.chooseOption(selected);
                     
                     if (selected == 0) waitingForUserInput = false;
@@ -52,19 +51,17 @@ public class Main
     
     private static boolean connectDataBase()
     {
-        return DataBase.executeWithHysteresis(
-                DATABASE::connect,
-                CONNECTED,
-                "The program could not open the connection to the database."
+        return DataBase.executeWithHysteresis(DATABASE::connect,
+                                              ReplyType.CONNECTED,
+                                              "The program could not open the connection to the database."
         );
     }
     
     private static boolean closeDataBase()
     {
-        return DataBase.executeWithHysteresis(
-                DATABASE::close,
-                NOT_CONNECTED,
-                "The program could not close the connection to the database."
+        return DataBase.executeWithHysteresis(DATABASE::close,
+                                              ReplyType.NOT_CONNECTED,
+                                              "The program could not close the connection to the database."
         );
         
     }

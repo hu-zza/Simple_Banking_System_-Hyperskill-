@@ -8,9 +8,12 @@ package hu.zza.hyperskill.banking.menu;
 public enum Position
 {
     // NODES
+    
     ROOT, ACCOUNT,
     
+    
     // LEAVES
+    
     EXIT,
     
     CREATE_ACCOUNT, CLOSE_ACCOUNT,

@@ -5,12 +5,11 @@ import java.util.function.Supplier;
 
 public abstract class MenuEntry
 {
-    final         Supplier<Integer> function;
-    final         Position[]        forwardLinks;
     private final String            name;
     private final Position          position;
     private final Position[]        links;
-    
+    private final Supplier<Integer> function;
+    private final Position[]        forwardLinks;
     
     
     // Full-fledged, low-level constructor
@@ -28,24 +27,36 @@ public abstract class MenuEntry
         this.forwardLinks = forwardLinks.clone();
     }
     
-    public String getName()
+    String getName()
     {
         return name;
     }
     
-    public Position getPosition()
+    Position getPosition()
     {
         return position;
     }
     
-    public Position[] getLinks()
+    Position[] getLinks()
     {
         return links;
     }
     
-    public abstract Position select();
+    Supplier<Integer> getFunction()
+    {
+        return function;
+    }
+    
+    Position[] getForwardLinks()
+    {
+        return forwardLinks;
+    }
+    
+    abstract Position select();
     
     
+    ///////////////////////
+    // INNER STATIC CLASSES
     
     public static class Node extends MenuEntry
     {
@@ -55,9 +66,10 @@ public abstract class MenuEntry
         }
         
         @Override
-        public Position select()
+        Position select()
         {
-            return forwardLinks[0];
+            // There is no forward, a Node returns the Position of itself.
+            return getForwardLinks()[0];
         }
     }
     
@@ -70,9 +82,11 @@ public abstract class MenuEntry
         }
         
         @Override
-        public Position select()
+        Position select()
         {
-            return forwardLinks[function.get()];
+            // Supplier returns an integer: 0 (OK), or other (error codes).
+            // Forwarding in accord to this code.
+            return getForwardLinks()[getFunction().get()];
         }
     }
 }

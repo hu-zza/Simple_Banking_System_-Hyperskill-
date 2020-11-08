@@ -41,8 +41,10 @@ public class MenuInitializer
         
         // Constant forward link arrays for the most typical cases.
         // The schema: FORWARD_<success>_<fail>
+        
         final Position[] FORWARD_ROOT_ROOT = {Position.ROOT, Position.ROOT};
         final Position[] FORWARD_ACCOUNT_ROOT = {Position.ACCOUNT, Position.ROOT};
+        
         
         // GENERAL leaf
         
@@ -51,11 +53,10 @@ public class MenuInitializer
         
         // ROOT (parent node)
         
-        menuStructure.put(new MenuEntry.Leaf(
-                Position.CREATE_ACCOUNT,
-                "Create an account",
-                Account::createNewAccount,
-                FORWARD_ROOT_ROOT
+        menuStructure.put(new MenuEntry.Leaf(Position.CREATE_ACCOUNT,
+                                             "Create an account",
+                                             Account::createNewAccount,
+                                             FORWARD_ROOT_ROOT
         ));
         
         menuStructure.put(new MenuEntry.Leaf(Position.LOGIN_ACCOUNT,

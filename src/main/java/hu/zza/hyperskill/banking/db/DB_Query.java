@@ -1,6 +1,5 @@
 package hu.zza.hyperskill.banking.db;
 
-
 import hu.zza.hyperskill.banking.Account;
 
 
@@ -29,24 +28,14 @@ public class DB_Query
     }
     
     
+    //////////////////////////////////////////////
+    // GETTERS ONLY FOR THE IN-PACKAGE PROCESSING
+    
     // TRANSACTION TYPE
     
     TransactionType getTransactionType()
     {
         return transactionType;
-    }
-    
-    
-    // TRANSACTION DETAILS
-    
-    String[] getTransactionDetails()
-    {
-        return transactionDetails.clone();
-    }
-    
-    int countOfTransactionDetails()
-    {
-        return transactionDetails.length;
     }
     
     
@@ -58,15 +47,18 @@ public class DB_Query
     }
     
     
+    // TRANSACTION DETAILS
+    
+    String[] getTransactionDetails()
+    {
+        return transactionDetails.clone();
+    }
+    
+    
     // ADDITIONAL ACCOUNTS
     
     Account[] getAdditionalAccounts()
     {
         return additionalAccounts.clone();
-    }
-    
-    int countOfAdditionalAccounts()
-    {
-        return additionalAccounts.length;
     }
 }

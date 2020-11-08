@@ -6,10 +6,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CONNECTED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.ERROR;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.NOT_CONNECTED;
+import static hu.zza.hyperskill.banking.db.ReplyType.CONNECTED;
+import static hu.zza.hyperskill.banking.db.ReplyType.ERROR;
+import static hu.zza.hyperskill.banking.db.ReplyType.NOT_CONNECTED;
 
 
 public class DataBase
@@ -135,7 +134,10 @@ public class DataBase
         
         try
         {
-            return dataBaseQuery.getTransactionType().function.apply(this, dataBaseQuery);
+            return dataBaseQuery
+                           .getTransactionType()
+                           .getBiFunction()
+                           .apply(this, dataBaseQuery);
         }
         catch (Exception e)
         {

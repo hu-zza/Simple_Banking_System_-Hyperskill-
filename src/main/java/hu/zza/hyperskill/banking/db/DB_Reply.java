@@ -1,8 +1,6 @@
 package hu.zza.hyperskill.banking.db;
 
 import java.util.Objects;
-
-
 public class DB_Reply
 {
     private final ReplyType replyType;
@@ -14,7 +12,10 @@ public class DB_Reply
         this.details   = details.clone();
     }
     
-    ReplyType getReplyType()
+    
+    // REPLY TYPE
+    
+    public ReplyType getReplyType()
     {
         return replyType;
     }
@@ -29,21 +30,11 @@ public class DB_Reply
         return !isType(replyType);
     }
     
+    
+    // DETAILS
+    
     public String[] getDetails()
     {
         return details.clone();
-    }
-    
-    public enum ReplyType
-    {
-        ERROR,
-        
-        CONNECTED, NOT_CONNECTED,
-        
-        EXISTS, NOT_EXISTS,
-        
-        AUTHENTICATED, SYNCHRONIZED,
-        
-        CREATED, MODIFIED, UPDATED, AVAILABLE, TRANSFERRED, CLOSED
     }
 }

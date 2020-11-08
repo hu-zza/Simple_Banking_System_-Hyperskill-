@@ -22,10 +22,19 @@ public enum TransactionType
     DO_TRANSFER(DB_Logic::doTransfer);
     
     
-    BiFunction<DataBase, DB_Query, DB_Reply> function;
+    private final BiFunction<DataBase, DB_Query, DB_Reply> biFunction;
     
-    TransactionType(BiFunction<DataBase, DB_Query, DB_Reply> function)
+    TransactionType(BiFunction<DataBase, DB_Query, DB_Reply> biFunction)
     {
-        this.function = function;
+        this.biFunction = biFunction;
+    }
+    
+    
+    ////////////////////////////////////////////
+    // GETTER ONLY FOR THE IN-PACKAGE PROCESSING
+    
+    BiFunction<DataBase, DB_Query, DB_Reply> getBiFunction()
+    {
+        return biFunction;
     }
 }

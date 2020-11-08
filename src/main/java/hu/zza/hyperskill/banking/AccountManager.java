@@ -5,11 +5,11 @@ import hu.zza.hyperskill.banking.db.DB_Reply;
 
 import static hu.zza.hyperskill.banking.Main.DATABASE;
 import static hu.zza.hyperskill.banking.Main.SCANNER;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.AUTHENTICATED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.CLOSED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.EXISTS;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.MODIFIED;
-import static hu.zza.hyperskill.banking.db.DB_Reply.ReplyType.TRANSFERRED;
+import static hu.zza.hyperskill.banking.db.ReplyType.AUTHENTICATED;
+import static hu.zza.hyperskill.banking.db.ReplyType.CLOSED;
+import static hu.zza.hyperskill.banking.db.ReplyType.EXISTS;
+import static hu.zza.hyperskill.banking.db.ReplyType.MODIFIED;
+import static hu.zza.hyperskill.banking.db.ReplyType.TRANSFERRED;
 import static hu.zza.hyperskill.banking.db.TransactionType.AUTHENTICATE_ACCOUNT;
 import static hu.zza.hyperskill.banking.db.TransactionType.CHECK_ACCOUNT_EXISTENCE;
 import static hu.zza.hyperskill.banking.db.TransactionType.CLOSE_ACCOUNT;
@@ -17,9 +17,12 @@ import static hu.zza.hyperskill.banking.db.TransactionType.DO_TRANSFER;
 import static hu.zza.hyperskill.banking.db.TransactionType.MODIFY_BALANCE;
 import static hu.zza.hyperskill.banking.db.TransactionType.SYNCHRONIZE_ACCOUNT;
 
+
 // TO-DO:
 // PATTERN CHECK FOR INPUT!!!
 
+//////////////////////////////////////////
+// Utility class for Account manipulation.
 
 abstract class AccountManager
 {
@@ -46,8 +49,8 @@ abstract class AccountManager
         
         if (cardNumber.length() == 16 && pinCode.length() == 4)
         {
-            Account  tmpAccount = Account.createExistingAccount(cardNumber, pinCode);
-            DB_Reply reply      = DATABASE.processQuery(new DB_Query(AUTHENTICATE_ACCOUNT, tmpAccount));
+            Account tmpAccount = Account.createExistingAccount(cardNumber, pinCode);
+            DB_Reply reply     = DATABASE.processQuery(new DB_Query(AUTHENTICATE_ACCOUNT, tmpAccount));
             
             if (reply.isType(AUTHENTICATED))
             {
@@ -71,14 +74,14 @@ abstract class AccountManager
     
     /////////////////////
     // ONLY AFTER LOGIN
-
+    
     static int logoutAccount()
     {
         if (!loggedIn) return 1; // Position.ROOT
-    
+        
         loggedIn = false;
         account  = null;
-    
+        
         System.out.printf("%nYou have successfully logged out!%n%n");
         return 0; // Position.ROOT
     }
@@ -182,9 +185,9 @@ abstract class AccountManager
             {
                 DB_Reply reply;
                 reply = DATABASE.processQuery(new DB_Query(DO_TRANSFER,
-                                                                   account,
-                                                                   new String[] {amountToTransfer},
-                                                                   payeeWrapperAccount
+                                                           account,
+                                                           new String[] {amountToTransfer},
+                                                           payeeWrapperAccount
                 ));
                 
                 System.out.println(reply.isType(TRANSFERRED) ? "Success!" : reply.getDetails()[0]);
