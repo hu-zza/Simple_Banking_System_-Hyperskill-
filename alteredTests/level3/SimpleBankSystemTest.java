@@ -1,5 +1,5 @@
-import hu.zza.hyperskill.banking.Main;
 import com.mysql.cj.jdbc.MysqlDataSource;
+import hu.zza.hyperskill.banking.Main;
 import org.hyperskill.hstest.dynamic.input.DynamicTestingMethod;
 import org.hyperskill.hstest.exception.outcomes.WrongAnswer;
 import org.hyperskill.hstest.stage.StageTest;
