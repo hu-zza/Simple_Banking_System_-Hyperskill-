@@ -2,7 +2,6 @@ package hu.zza.hyperskill.banking;
 
 import hu.zza.hyperskill.banking.db.DB_Query;
 import hu.zza.hyperskill.banking.db.DB_Reply;
-import hu.zza.hyperskill.banking.db.DataBase;
 
 import java.util.Objects;
 import java.util.Random;
@@ -10,7 +9,6 @@ import java.util.stream.Collectors;
 
 import static hu.zza.hyperskill.banking.Main.DATABASE;
 import static hu.zza.hyperskill.banking.db.ReplyType.AUTHENTICATED;
-import static hu.zza.hyperskill.banking.db.ReplyType.CONNECTED;
 import static hu.zza.hyperskill.banking.db.ReplyType.CREATED;
 import static hu.zza.hyperskill.banking.db.ReplyType.EXISTS;
 import static hu.zza.hyperskill.banking.db.ReplyType.NOT_CONNECTED;
@@ -124,7 +122,7 @@ public class Account
             
             if (reply.isType(NOT_CONNECTED))
             {
-                DataBase.executeWithHysteresis(DATABASE::connect, CONNECTED, "Can not connect to database.");
+                DATABASE.connect();
                 if (hysteresis++ > 3) break;
             }
             

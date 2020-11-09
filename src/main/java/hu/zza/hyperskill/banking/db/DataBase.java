@@ -26,19 +26,84 @@ public class DataBase
     }
     
     
-    /**
-     * Execute methods related to database connection with hysteresis. Maximum trials count is 3 at one second interval.
-     *
-     * @param methodToExecute The executeWithHysteresis() tries to execute this.
-     * @param targetReplyType The required return value from the method.
-     * @param timeoutMessages String vararg to display line-by-line if time is over.
-     *
-     * @return true - if executed successfully //
-     *         false - if an error occurs
-     */
-    public static boolean executeWithHysteresis(Supplier<DB_Reply> methodToExecute,
-                                                ReplyType targetReplyType,
-                                                String... timeoutMessages
+    
+    // INSTANCE METHODS
+    
+    // PUBLIC INTERFACE
+    
+    public boolean connect()
+    {
+        return executeWithHysteresis(
+                this::connectWithHysteresis,
+                CONNECTED,
+                "The program could not open the connection to the database."
+        );
+    }
+    
+    public boolean isConnected()
+    {
+        return this.isValid().isType(CONNECTED);
+    }
+    
+    public boolean close()
+    {
+        return executeWithHysteresis(
+                this::closeWithHysteresis,
+                NOT_CONNECTED,
+                "The program could not close the connection to the database."
+        );
+    }
+    
+    public DB_Reply processQuery(DB_Query dataBaseQuery)
+    {
+        if (isValid().isNotType(CONNECTED)) return new DB_Reply(NOT_CONNECTED);
+        
+        try
+        {
+            return dataBaseQuery
+                           .getTransactionType()
+                           .getBiFunction()
+                           .apply(this, dataBaseQuery);
+        }
+        catch (Exception e)
+        {
+            return makeErrorReply(e, "An exception occur when processing a database query:%n%s%n%n");
+        }
+    }
+    
+    
+    // PACKAGE-PRIVATE INTERFACE
+    
+    DB_Reply isValid()
+    {
+        if (connection != null)
+        {
+            try
+            {
+                return connection.isValid(3) ? new DB_Reply(CONNECTED) : new DB_Reply(NOT_CONNECTED);
+            }
+            catch (SQLException e)
+            {
+                return makeErrorReply(e, "SQLException when checking connection validity:%n%s%n%n");
+            }
+        }
+        else
+        {
+            return new DB_Reply(NOT_CONNECTED);
+        }
+    }
+    
+    Connection getConnection()
+    {
+        return connection;
+    }
+    
+    
+    // LOW-LEVEL
+    
+    private boolean executeWithHysteresis(Supplier<DB_Reply> methodToExecute,
+                                          ReplyType targetReplyType,
+                                          String... timeoutMessages
     )
     {
         DB_Reply reply;
@@ -65,12 +130,7 @@ public class DataBase
         return false;
     }
     
-    
-    // INSTANCE METHODS
-    
-    // CONNECTION: establish, get, close
-    
-    public DB_Reply connect()
+    private DB_Reply connectWithHysteresis()
     {
         var dataSource = new MysqlDataSource();
         dataSource.setURL(URL);
@@ -84,35 +144,10 @@ public class DataBase
             return makeErrorReply(e, "SQLException when establishing the connection:%n%s%n%n");
         }
         
-        return isConnected();
+        return isValid();
     }
     
-    DB_Reply isConnected()
-    {
-        if (connection != null)
-        {
-            try
-            {
-                return connection.isValid(3) ? new DB_Reply(CONNECTED) : new DB_Reply(NOT_CONNECTED);
-            }
-            catch (SQLException e)
-            {
-                return makeErrorReply(e, "SQLException when checking connection validity:%n%s%n%n");
-            }
-        }
-        else
-        {
-            return new DB_Reply(NOT_CONNECTED);
-        }
-    }
-    
-    Connection getConnection()
-    {
-        return connection;
-    }
-    
-    
-    public DB_Reply close()
+    private DB_Reply closeWithHysteresis()
     {
         try
         {
@@ -125,28 +160,6 @@ public class DataBase
         return new DB_Reply(NOT_CONNECTED);
     }
     
-    
-    // QUERY PROCESSING
-    
-    public DB_Reply processQuery(DB_Query dataBaseQuery)
-    {
-        if (isConnected().isNotType(CONNECTED)) return new DB_Reply(NOT_CONNECTED);
-        
-        try
-        {
-            return dataBaseQuery
-                           .getTransactionType()
-                           .getBiFunction()
-                           .apply(this, dataBaseQuery);
-        }
-        catch (Exception e)
-        {
-            return makeErrorReply(e, "An exception occur when processing a database query:%n%s%n%n");
-        }
-    }
-    
-    
-    // LOW-LEVEL
     
     private DB_Reply makeErrorReply(Exception exception, String messageFormat)
     {
