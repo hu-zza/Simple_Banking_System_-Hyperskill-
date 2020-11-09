@@ -48,7 +48,13 @@ public class MenuInitializer
         
         // GENERAL leaf
         
-        menuStructure.put(new MenuEntry.Leaf(Position.EXIT, "Exit", Main::exit, FORWARD_ROOT_ROOT));
+        menuStructure.put(new MenuEntry.Leaf(Position.EXIT,
+                                             "Exit",
+                                             () ->
+                                                { System.out.printf("%nBye!%n%n");
+                                                  return 0; },
+                                             FORWARD_ROOT_ROOT
+        ));
         
         
         // ROOT (parent node)

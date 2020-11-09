@@ -11,7 +11,7 @@ import static hu.zza.hyperskill.banking.db.ReplyType.ERROR;
 import static hu.zza.hyperskill.banking.db.ReplyType.NOT_CONNECTED;
 
 
-public class DataBase
+public class DataBase implements AutoCloseable
 {
     private final String     URL;
     private final String     USERNAME;
@@ -45,9 +45,10 @@ public class DataBase
         return this.isValid().isType(CONNECTED);
     }
     
-    public boolean close()
+    @Override
+    public void close()
     {
-        return executeWithHysteresis(
+        executeWithHysteresis(
                 this::closeWithHysteresis,
                 NOT_CONNECTED,
                 "The program could not close the connection to the database."

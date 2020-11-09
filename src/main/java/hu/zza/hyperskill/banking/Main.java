@@ -18,35 +18,27 @@ public class Main
     
     public static void main(String[] args)
     {
-        
         Menu menu = MenuInitializer.initialize();
         
         try (SCANNER)
         {
             if (DATABASE.connect())
             {
-                int selected;
-                while (waitingForUserInput)
+                try (DATABASE)
                 {
-                    menu.listOptions();
-                    
-                    selected = SCANNER.nextInt();
-                    
-                    menu.chooseOption(selected);
-                    
-                    if (selected == 0) waitingForUserInput = false;
+                    int selected;
+                    while (waitingForUserInput)
+                    {
+                        menu.listOptions();
+        
+                        selected = SCANNER.nextInt();
+        
+                        menu.chooseOption(selected);
+        
+                        if (selected == 0) waitingForUserInput = false;
+                    }
                 }
             }
         }
-        
-        if (DATABASE.isConnected()) DATABASE.close();
-    }
-    
-    static int exit()
-    {
-        DATABASE.close();
-        
-        System.out.printf("%nBye!");
-        return 0;
     }
 }
