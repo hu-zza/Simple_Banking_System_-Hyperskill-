@@ -9,7 +9,7 @@ public abstract class MenuEntry
     private final Position          position;
     private final Position[]        links;
     private final Supplier<Integer> function;
-    private final Position[]        forwardLinks;
+    private final NodePosition[]    functionLinks;
     
     
     // Full-fledged, low-level constructor
@@ -17,15 +17,19 @@ public abstract class MenuEntry
                       String name,
                       Position[] links,
                       Supplier<Integer> function,
-                      Position... forwardLinks
+                      NodePosition... functionLinks
     )
     {
-        this.name         = name;
-        this.position     = position;
-        this.links        = links.clone();
-        this.function     = function;
-        this.forwardLinks = forwardLinks.clone();
+        this.name          = name;
+        this.position      = position;
+        this.links         = links.clone();
+        this.function      = function;
+        this.functionLinks = functionLinks.clone();
     }
+    
+    
+    ///////////////////////////////////////////////////
+    // GETTERS ONLY FOR THE PACKAGE-PRIVATE PROCESSING
     
     String getName()
     {
@@ -47,46 +51,71 @@ public abstract class MenuEntry
         return function;
     }
     
-    Position[] getForwardLinks()
+    Position[] getFunctionLinks()
     {
-        return forwardLinks;
+        return functionLinks;
     }
     
-    abstract Position select();
+    
+    /**
+     * Menu performs this method on every selected MenuEntry, then redirects itself to the returning Position.
+     * Nodes returns only with the Position of themselves, because selecting a Node means only this (navigating).
+     * Leaves performs a function, the returning Position depends on the returning value of its function.
+     *
+     * @return The Position where the Menu redirects itself after selecting a MenuEntry.
+     */
+    Position select()
+    {
+        return getFunctionLinks()[getFunction().get()];
+    }
     
     
-    ///////////////////////
-    // INNER STATIC CLASSES
+    ///////////////////////////
+    // INNER STATIC SUBCLASSES
+    
     
     public static class Node extends MenuEntry
     {
-        public Node(Position position, String name, Position... links)
+        public Node(NodePosition position, String name, Position... links)
         {
+            /*
+            Constructor parameters in order:
+            
+            position        -   The position of this MenuEntry.
+            name            -   Human-friendly name of this MenuEntry.
+            links           -   An array of Positions of other reachable MenuEntries (Nodes and Leaves).
+            
+            function        -   "Placeholder" function, always returns 0.
+            functionLinks   -   An array of Positions with only one element: The Position of this MenuEntry.
+             */
             super(position, name, links, () -> 0, position);
-        }
-        
-        @Override
-        Position select()
-        {
-            // There is no forward, a Node returns the Position of itself.
-            return getForwardLinks()[0];
         }
     }
     
     
     public static class Leaf extends MenuEntry
     {
-        public Leaf(Position position, String name, Supplier<Integer> function, Position... forwardLinks)
+        public Leaf(LeafPosition position, String name, Supplier<Integer> function, NodePosition... functionLinks)
         {
-            super(position, name, new Position[0], function, forwardLinks);
-        }
-        
-        @Override
-        Position select()
-        {
-            // Supplier returns an integer: 0 (OK), or other (error codes).
-            // Forwarding in accord to this code.
-            return getForwardLinks()[getFunction().get()];
+            /*
+            Constructor parameters in order:
+
+            position        -   The position of this MenuEntry
+            name            -   Human-friendly name of this MenuEntry
+            
+            links           -   There is no link, because it's not a Node. You can not jump from the Position of a Leaf
+                                to other Positions, because you never jump on that. You can choose the Position of a
+                                Leaf from the links of a Node, then it's function performs and returns with an integer.
+                                After that your position will be functionLinks[returnValue]. So Position of a Leaf is
+                                never used as real position, it's only a reference.
+           
+            function        -   The essence of a Leaf. Performs a task and returns an integer (index for forwarding).
+                                Return values: 0 is for the success, others are error codes.
+                                
+            functionLinks   -   An array of Positions: the forwarding options for a Leaf. The outcome of a Leaf's
+                                function controls the forwarding: functionLinks[returnValue].
+             */
+            super(position, name, new Position[0], function, functionLinks);
         }
     }
 }

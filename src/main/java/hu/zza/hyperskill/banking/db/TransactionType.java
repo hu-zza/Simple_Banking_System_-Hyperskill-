@@ -30,8 +30,8 @@ public enum TransactionType
     }
     
     
-    ////////////////////////////////////////////
-    // GETTER ONLY FOR THE IN-PACKAGE PROCESSING
+    //////////////////////////////////////////////////
+    // GETTER ONLY FOR THE PACKAGE-PRIVATE PROCESSING
     
     BiFunction<DataBase, DB_Query, DB_Reply> getBiFunction()
     {

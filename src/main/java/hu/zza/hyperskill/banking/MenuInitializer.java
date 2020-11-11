@@ -1,9 +1,10 @@
 package hu.zza.hyperskill.banking;
 
+import hu.zza.hyperskill.banking.menu.LeafPosition;
 import hu.zza.hyperskill.banking.menu.Menu;
 import hu.zza.hyperskill.banking.menu.MenuEntry;
 import hu.zza.hyperskill.banking.menu.MenuStructure;
-import hu.zza.hyperskill.banking.menu.Position;
+import hu.zza.hyperskill.banking.menu.NodePosition;
 
 
 public class MenuInitializer
@@ -16,22 +17,22 @@ public class MenuInitializer
         //////////
         // NODES
         
-        menuStructure.put(new MenuEntry.Node(Position.ROOT,
+        menuStructure.put(new MenuEntry.Node(NodePosition.ROOT,
                                              "Simple Banking System",
-                                             Position.EXIT,
-                                             Position.CREATE_ACCOUNT,
-                                             Position.LOGIN_ACCOUNT
+                                             LeafPosition.EXIT,
+                                             LeafPosition.CREATE_ACCOUNT,
+                                             LeafPosition.LOGIN_ACCOUNT
         ));
         
-        menuStructure.put(new MenuEntry.Node(Position.ACCOUNT,
+        menuStructure.put(new MenuEntry.Node(NodePosition.ACCOUNT,
                                              "Your account",
-                                             Position.EXIT,
-                                             Position.GET_BALANCE,
-                                             Position.ADD_INCOME,
+                                             LeafPosition.EXIT,
+                                             LeafPosition.GET_BALANCE,
+                                             LeafPosition.ADD_INCOME,
                                              // Position.DO_WITHDRAWAL,
-                                             Position.DO_TRANSFER,
-                                             Position.CLOSE_ACCOUNT,
-                                             Position.LOGOUT_ACCOUNT
+                                             LeafPosition.DO_TRANSFER,
+                                             LeafPosition.CLOSE_ACCOUNT,
+                                             LeafPosition.LOGOUT_ACCOUNT
         ));
         
         
@@ -42,13 +43,13 @@ public class MenuInitializer
         // Constant forward link arrays for the most typical cases.
         // The schema: FORWARD_<success>_<fail>
         
-        final Position[] FORWARD_ROOT_ROOT = {Position.ROOT, Position.ROOT};
-        final Position[] FORWARD_ACCOUNT_ROOT = {Position.ACCOUNT, Position.ROOT};
+        final NodePosition[] FORWARD_ROOT_ROOT = {NodePosition.ROOT, NodePosition.ROOT};
+        final NodePosition[] FORWARD_ACCOUNT_ROOT = {NodePosition.ACCOUNT, NodePosition.ROOT};
         
         
         // GENERAL leaf
         
-        menuStructure.put(new MenuEntry.Leaf(Position.EXIT,
+        menuStructure.put(new MenuEntry.Leaf(LeafPosition.EXIT,
                                              "Exit",
                                              () ->
                                                 { System.out.printf("%nBye!%n%n");
@@ -59,13 +60,13 @@ public class MenuInitializer
         
         // ROOT (parent node)
         
-        menuStructure.put(new MenuEntry.Leaf(Position.CREATE_ACCOUNT,
+        menuStructure.put(new MenuEntry.Leaf(LeafPosition.CREATE_ACCOUNT,
                                              "Create an account",
                                              Account::createNewAccount,
                                              FORWARD_ROOT_ROOT
         ));
         
-        menuStructure.put(new MenuEntry.Leaf(Position.LOGIN_ACCOUNT,
+        menuStructure.put(new MenuEntry.Leaf(LeafPosition.LOGIN_ACCOUNT,
                                              "Log into account",
                                              AccountManager::loginAccount,
                                              FORWARD_ACCOUNT_ROOT
@@ -74,38 +75,38 @@ public class MenuInitializer
         
         // ACCOUNT (parent node)
         
-        menuStructure.put(new MenuEntry.Leaf(Position.GET_BALANCE,
+        menuStructure.put(new MenuEntry.Leaf(LeafPosition.GET_BALANCE,
                                              "Balance",
                                              AccountManager::getBalance,
                                              FORWARD_ACCOUNT_ROOT
         ));
         
-        menuStructure.put(new MenuEntry.Leaf(Position.ADD_INCOME,
+        menuStructure.put(new MenuEntry.Leaf(LeafPosition.ADD_INCOME,
                                              "Add income",
                                              AccountManager::addIncome,
                                              FORWARD_ACCOUNT_ROOT
         ));
         
-        menuStructure.put(new MenuEntry.Leaf(Position.DO_WITHDRAWAL,
+        menuStructure.put(new MenuEntry.Leaf(LeafPosition.DO_WITHDRAWAL,
                                              "Do withdrawal",
                                              AccountManager::doWithdrawal,
                                              FORWARD_ACCOUNT_ROOT
         ));
         
         
-        menuStructure.put(new MenuEntry.Leaf(Position.DO_TRANSFER,
+        menuStructure.put(new MenuEntry.Leaf(LeafPosition.DO_TRANSFER,
                                              "Do transfer",
                                              AccountManager::doTransfer,
                                              FORWARD_ACCOUNT_ROOT
         ));
         
-        menuStructure.put(new MenuEntry.Leaf(Position.CLOSE_ACCOUNT,
+        menuStructure.put(new MenuEntry.Leaf(LeafPosition.CLOSE_ACCOUNT,
                                              "Close account",
                                              AccountManager::closeAccount,
                                              FORWARD_ROOT_ROOT
         ));
         
-        menuStructure.put(new MenuEntry.Leaf(Position.LOGOUT_ACCOUNT,
+        menuStructure.put(new MenuEntry.Leaf(LeafPosition.LOGOUT_ACCOUNT,
                                              "Log out",
                                              AccountManager::logoutAccount,
                                              FORWARD_ROOT_ROOT

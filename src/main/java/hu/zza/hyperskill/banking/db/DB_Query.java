@@ -28,8 +28,8 @@ public class DB_Query
     }
     
     
-    //////////////////////////////////////////////
-    // GETTERS ONLY FOR THE IN-PACKAGE PROCESSING
+    ///////////////////////////////////////////////////
+    // GETTERS ONLY FOR THE PACKAGE-PRIVATE PROCESSING
     
     // TRANSACTION TYPE
     

@@ -9,7 +9,7 @@ public class Menu
     
     public Menu(MenuStructure menu)
     {
-        this(menu, Position.ROOT);
+        this(menu, NodePosition.ROOT);
     }
     
     public Menu(MenuStructure menu, Position position)

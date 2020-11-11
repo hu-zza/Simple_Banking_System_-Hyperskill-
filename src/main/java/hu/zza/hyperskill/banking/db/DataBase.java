@@ -42,7 +42,7 @@ public class DataBase implements AutoCloseable
     
     public boolean isConnected()
     {
-        return this.isValid().isType(CONNECTED);
+        return this.checkValidity().isType(CONNECTED);
     }
     
     @Override
@@ -57,7 +57,7 @@ public class DataBase implements AutoCloseable
     
     public DB_Reply processQuery(DB_Query dataBaseQuery)
     {
-        if (isValid().isNotType(CONNECTED)) return new DB_Reply(NOT_CONNECTED);
+        if (checkValidity().isNotType(CONNECTED)) return new DB_Reply(NOT_CONNECTED);
         
         try
         {
@@ -75,7 +75,7 @@ public class DataBase implements AutoCloseable
     
     // PACKAGE-PRIVATE INTERFACE
     
-    DB_Reply isValid()
+    DB_Reply checkValidity()
     {
         if (connection != null)
         {
@@ -145,7 +145,7 @@ public class DataBase implements AutoCloseable
             return makeErrorReply(e, "SQLException when establishing the connection:%n%s%n%n");
         }
         
-        return isValid();
+        return checkValidity();
     }
     
     private DB_Reply closeWithHysteresis()
