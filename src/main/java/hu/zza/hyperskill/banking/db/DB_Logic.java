@@ -19,6 +19,7 @@ import static hu.zza.hyperskill.banking.db.ReplyType.SYNCHRONIZED;
 import static hu.zza.hyperskill.banking.db.ReplyType.TRANSFERRED;
 import static hu.zza.hyperskill.banking.db.ReplyType.UPDATED;
 
+// TO DO: preparedStatement!!!
 
 /////////////////////////////////////
 // Utility class for DB manipulation.
