@@ -3,8 +3,7 @@ package hu.zza.hyperskill.banking.menu;
 import java.util.function.Supplier;
 
 
-public abstract class MenuEntry
-{
+public abstract class MenuEntry {
     private final String            name;
     private final Position          position;
     private final Position[]        links;
@@ -17,9 +16,7 @@ public abstract class MenuEntry
                       String name,
                       Position[] links,
                       Supplier<Integer> function,
-                      NodePosition... functionLinks
-    )
-    {
+                      NodePosition... functionLinks) {
         this.name          = name;
         this.position      = position;
         this.links         = links.clone();
@@ -31,28 +28,28 @@ public abstract class MenuEntry
     ///////////////////////////////////////////////////
     // GETTERS ONLY FOR THE PACKAGE-PRIVATE PROCESSING
     
-    String getName()
-    {
+    
+    String getName() {
         return name;
     }
     
-    Position getPosition()
-    {
+    
+    Position getPosition() {
         return position;
     }
     
-    Position[] getLinks()
-    {
+    
+    Position[] getLinks() {
         return links;
     }
     
-    Supplier<Integer> getFunction()
-    {
+    
+    Supplier<Integer> getFunction() {
         return function;
     }
     
-    Position[] getFunctionLinks()
-    {
+    
+    Position[] getFunctionLinks() {
         return functionLinks;
     }
     
@@ -64,8 +61,7 @@ public abstract class MenuEntry
      *
      * @return The Position where the Menu redirects itself after selecting a MenuEntry.
      */
-    Position select()
-    {
+    Position select() {
         return getFunctionLinks()[getFunction().get()];
     }
     
@@ -74,10 +70,8 @@ public abstract class MenuEntry
     // INNER STATIC SUBCLASSES
     
     
-    public static class Node extends MenuEntry
-    {
-        public Node(NodePosition position, String name, Position... links)
-        {
+    public static class Node extends MenuEntry {
+        public Node(NodePosition position, String name, Position... links) {
             /*
             Constructor parameters in order:
             
@@ -93,10 +87,8 @@ public abstract class MenuEntry
     }
     
     
-    public static class Leaf extends MenuEntry
-    {
-        public Leaf(LeafPosition position, String name, Supplier<Integer> function, NodePosition... functionLinks)
-        {
+    public static class Leaf extends MenuEntry {
+        public Leaf(LeafPosition position, String name, Supplier<Integer> function, NodePosition... functionLinks) {
             /*
             Constructor parameters in order:
 

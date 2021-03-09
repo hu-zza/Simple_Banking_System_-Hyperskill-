@@ -3,8 +3,7 @@ package hu.zza.hyperskill.banking.db;
 import java.util.function.BiFunction;
 
 
-public enum TransactionType
-{
+public enum TransactionType {
     CHECK_ACCOUNT_EXISTENCE(DB_Logic::isExist),
     
     ADD_ACCOUNT_TO_DATABASE(DB_Logic::addAccount),
@@ -24,8 +23,8 @@ public enum TransactionType
     
     private final BiFunction<DataBase, DB_Query, DB_Reply> biFunction;
     
-    TransactionType(BiFunction<DataBase, DB_Query, DB_Reply> biFunction)
-    {
+    
+    TransactionType(BiFunction<DataBase, DB_Query, DB_Reply> biFunction) {
         this.biFunction = biFunction;
     }
     
@@ -33,8 +32,8 @@ public enum TransactionType
     //////////////////////////////////////////////////
     // GETTER ONLY FOR THE PACKAGE-PRIVATE PROCESSING
     
-    BiFunction<DataBase, DB_Query, DB_Reply> getBiFunction()
-    {
+    
+    BiFunction<DataBase, DB_Query, DB_Reply> getBiFunction() {
         return biFunction;
     }
 }

@@ -1,14 +1,21 @@
 package hu.zza.hyperskill.banking.db;
 
-public enum ReplyType
-{
+public enum ReplyType {
     ERROR,
     
-    CONNECTED, NOT_CONNECTED,
+    CONNECTED,
+    NOT_CONNECTED,
     
-    EXISTS, NOT_EXISTS,
+    EXISTS,
+    NOT_EXISTS,
     
-    AUTHENTICATED, SYNCHRONIZED,
+    AUTHENTICATED,
+    SYNCHRONIZED,
     
-    CREATED, MODIFIED, UPDATED, AVAILABLE, TRANSFERRED, CLOSED
+    CREATED,
+    MODIFIED,
+    UPDATED,
+    AVAILABLE,
+    TRANSFERRED,
+    CLOSED
 }

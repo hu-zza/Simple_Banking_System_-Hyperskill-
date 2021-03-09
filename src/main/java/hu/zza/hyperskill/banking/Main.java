@@ -10,32 +10,27 @@ import static hu.zza.hyperskill.banking.Secret.URL;
 import static hu.zza.hyperskill.banking.Secret.USERNAME;
 
 
-public class Main
-{
+public class Main {
     final static   Scanner  SCANNER             = new Scanner(System.in);
     final static   DataBase DATABASE            = new DataBase(URL, USERNAME, PASSWORD);
     private static boolean  waitingForUserInput = true;
     
-    public static void main(String[] args)
-    {
+    
+    public static void main(String[] args) {
         Menu menu = MenuInitializer.initialize();
         
-        try (SCANNER)
-        {
-            if (DATABASE.connect())
-            {
-                try (DATABASE)
-                {
+        try (SCANNER) {
+            if (DATABASE.connect()) {
+                try (DATABASE) {
                     int selected;
-                    while (waitingForUserInput)
-                    {
+                    while (waitingForUserInput) {
                         menu.listOptions();
-        
+                        
                         selected = SCANNER.nextInt();
-        
+                        
                         menu.chooseOption(selected);
-        
-                        if (selected == 0) waitingForUserInput = false;
+    
+                        if (selected == 0) { waitingForUserInput = false; }
                     }
                 }
             }

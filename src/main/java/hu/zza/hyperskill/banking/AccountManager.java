@@ -24,44 +24,54 @@ import static hu.zza.hyperskill.banking.db.TransactionType.SYNCHRONIZE_ACCOUNT;
 //////////////////////////////////////////
 // Utility class for Account manipulation.
 
-abstract class AccountManager
-{
+
+abstract class AccountManager {
     private static boolean loggedIn;
     private static Account account;
     
     
-    static int loginAccount()
-    {
+    static int getBalance() {
+        if (!loggedIn) {
+            return 1; // Position.ROOT
+        }
+        
+        synchronizeAccount();
+        System.out.printf("%nBalance: %d%n%n", account.getBalance());
+        
+        return 0; // Position.ACCOUNT
+    }
+    
+    
+    
+    /////////////////////
+    // ONLY AFTER LOGIN
+    
+    
+    static int loginAccount() {
         String cardNumber;
         String pinCode;
         
         SCANNER.nextLine();
         
         System.out.printf("%nEnter your card number:%n");
-        cardNumber = SCANNER
-                             .nextLine()
-                             .strip();
+        cardNumber = SCANNER.nextLine()
+                            .strip();
         
         System.out.println("Enter your PIN:");
-        pinCode = SCANNER
-                          .nextLine()
-                          .strip();
+        pinCode = SCANNER.nextLine()
+                         .strip();
         
-        if (cardNumber.length() == 16 && pinCode.length() == 4)
-        {
-            Account tmpAccount = Account.createExistingAccount(cardNumber, pinCode);
-            DB_Reply reply     = DATABASE.processQuery(new DB_Query(AUTHENTICATE_ACCOUNT, tmpAccount));
+        if (cardNumber.length() == 16 && pinCode.length() == 4) {
+            Account  tmpAccount = Account.createExistingAccount(cardNumber, pinCode);
+            DB_Reply reply      = DATABASE.processQuery(new DB_Query(AUTHENTICATE_ACCOUNT, tmpAccount));
             
-            if (reply.isType(AUTHENTICATED))
-            {
+            if (reply.isType(AUTHENTICATED)) {
                 loggedIn = true;
                 account  = tmpAccount;
                 synchronizeAccount();
                 System.out.printf("%nYou have successfully logged in!%n%n");
                 return 0; // Position.ACCOUNT
-            }
-            else
-            {
+            } else {
                 loggedIn = false;
                 account  = null;
             }
@@ -71,13 +81,10 @@ abstract class AccountManager
     }
     
     
-    
-    /////////////////////
-    // ONLY AFTER LOGIN
-    
-    static int logoutAccount()
-    {
-        if (!loggedIn) return 1; // Position.ROOT
+    static int logoutAccount() {
+        if (!loggedIn) {
+            return 1; // Position.ROOT
+        }
         
         loggedIn = false;
         account  = null;
@@ -86,20 +93,11 @@ abstract class AccountManager
         return 0; // Position.ROOT
     }
     
-    static int getBalance()
-    {
-        if (!loggedIn) return 1; // Position.ROOT
-        
-        synchronizeAccount();
-        System.out.printf("%nBalance: %d%n%n", account.getBalance());
-        
-        return 0; // Position.ACCOUNT
-    }
     
-    
-    static int addIncome()
-    {
-        if (!loggedIn) return 1; // Position.ROOT
+    static int addIncome() {
+        if (!loggedIn) {
+            return 1; // Position.ROOT
+        }
         
         System.out.printf("%nEnter income:%n");
         
@@ -116,16 +114,17 @@ abstract class AccountManager
         return 0; // Position.ACCOUNT
     }
     
-    static int doWithdrawal()
-    {
-        if (!loggedIn) return 1; // Position.ROOT
+    
+    static int doWithdrawal() {
+        if (!loggedIn) {
+            return 1; // Position.ROOT
+        }
         
         System.out.print("%nEnter how much money you want to withdraw:%n");
         
         SCANNER.nextLine();
-        String amount = SCANNER
-                                .nextLine()
-                                .strip();
+        String amount = SCANNER.nextLine()
+                               .strip();
         
         String[] transactionDetails = {amount.startsWith("-") ? amount : "-" + amount};
         
@@ -139,56 +138,41 @@ abstract class AccountManager
         return 0; // Position.ACCOUNT
     }
     
-    static int doTransfer()
-    {
-        if (!loggedIn) return 1; // Position.ROOT
+    
+    static int doTransfer() {
+        if (!loggedIn) {
+            return 1; // Position.ROOT
+        }
         
         System.out.printf("%nTransfer%nEnter card number:%n");
         
         SCANNER.nextLine();
-        String payeeCardNumber = SCANNER
-                                         .nextLine()
-                                         .strip();
+        String payeeCardNumber = SCANNER.nextLine()
+                                        .strip();
         
         Account payeeWrapperAccount = Account.createWrapperAccount(payeeCardNumber);
         
-        if (account
-                    .getCardNumber()
-                    .equals(payeeCardNumber))
-        {
+        if (account.getCardNumber()
+                   .equals(payeeCardNumber)) {
             System.out.println("You can't transfer money to the same account!");
-        }
-        else if (!Account.verifyChecksum(payeeCardNumber))
-        {
+        } else if (!Account.verifyChecksum(payeeCardNumber)) {
             System.out.println("Probably you made mistake in the card number. Please try again!");
-        }
-        else if (DATABASE
-                         .processQuery(new DB_Query(CHECK_ACCOUNT_EXISTENCE, payeeWrapperAccount))
-                         .isNotType(EXISTS))
-        {
+        } else if (DATABASE.processQuery(new DB_Query(CHECK_ACCOUNT_EXISTENCE, payeeWrapperAccount))
+                           .isNotType(EXISTS)) {
             System.out.println("Such a card does not exist.");
-        }
-        else
-        {
+        } else {
             System.out.println("Enter how much money you want to transfer:");
-            String amountToTransfer = SCANNER
-                                              .nextLine()
-                                              .strip();
+            String amountToTransfer = SCANNER.nextLine()
+                                             .strip();
             
             synchronizeAccount();
             
-            if (account.getBalance() < Integer.parseInt(amountToTransfer))
-            {
+            if (account.getBalance() < Integer.parseInt(amountToTransfer)) {
                 System.out.println("Not enough money!");
-            }
-            else
-            {
+            } else {
                 DB_Reply reply;
-                reply = DATABASE.processQuery(new DB_Query(DO_TRANSFER,
-                                                           account,
-                                                           new String[] {amountToTransfer},
-                                                           payeeWrapperAccount
-                ));
+                reply = DATABASE.processQuery(
+                        new DB_Query(DO_TRANSFER, account, new String[] {amountToTransfer}, payeeWrapperAccount));
                 
                 System.out.println(reply.isType(TRANSFERRED) ? "Success!" : reply.getDetails()[0]);
             }
@@ -198,9 +182,11 @@ abstract class AccountManager
         return 0; // Position.ACCOUNT
     }
     
-    static int closeAccount()
-    {
-        if (!loggedIn) return 1; // Position.ROOT
+    
+    static int closeAccount() {
+        if (!loggedIn) {
+            return 1; // Position.ROOT
+        }
         
         synchronizeAccount();
         DB_Reply reply;
@@ -218,8 +204,8 @@ abstract class AccountManager
     
     // LOW-LEVEL
     
-    private static void synchronizeAccount()
-    {
+    
+    private static void synchronizeAccount() {
         DATABASE.processQuery(new DB_Query(SYNCHRONIZE_ACCOUNT, account));
     }
 }

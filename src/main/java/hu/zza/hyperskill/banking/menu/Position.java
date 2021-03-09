@@ -5,5 +5,4 @@ package hu.zza.hyperskill.banking.menu;
  * A position could symbolize a node or a leaf.
  */
 
-public interface Position
-{}
+public interface Position {}

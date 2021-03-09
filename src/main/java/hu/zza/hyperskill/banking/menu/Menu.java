@@ -1,19 +1,18 @@
 package hu.zza.hyperskill.banking.menu;
 
 
-public class Menu
-{
+public class Menu {
     private final MenuStructure menu;
     private       Position      position;
     private       Position[]    options;
     
-    public Menu(MenuStructure menu)
-    {
+    
+    public Menu(MenuStructure menu) {
         this(menu, NodePosition.ROOT);
     }
     
-    public Menu(MenuStructure menu, Position position)
-    {
+    
+    public Menu(MenuStructure menu, Position position) {
         this.menu     = menu;
         this.position = position;
         refreshOptions();
@@ -22,17 +21,15 @@ public class Menu
     
     // INSTANCE METHODS
     
-    public void listOptions()
-    {
+    
+    public void listOptions() {
         refreshOptions();
-        if (options.length == 0) return;
+        if (options.length == 0) { return; }
         
-        for (int i = 1; i < options.length; i++)
-        {
+        for (int i = 1; i < options.length; i++) {
             MenuEntry menuEntry = menu.get(options[i]);
             
-            if (menuEntry != null)
-            {
+            if (menuEntry != null) {
                 System.out.printf("%d. %s%n", i, menuEntry.getName());
             }
         }
@@ -40,29 +37,23 @@ public class Menu
         System.out.println("0. Exit");
     }
     
-    public void chooseOption(int optionNr)
-    {
+    
+    public void chooseOption(int optionNr) {
         refreshOptions();
-        if (0 <= optionNr && optionNr < options.length)
-        {
-            if (menu.containsKey(options[optionNr]))
-            {
-                position = menu
-                                   .get(options[optionNr])
-                                   .select();
+        if (0 <= optionNr && optionNr < options.length) {
+            if (menu.containsKey(options[optionNr])) {
+                position = menu.get(options[optionNr])
+                               .select();
             }
-        }
-        else
-        {
+        } else {
             System.err.println("Incorrect or unavailable menu position.");
         }
     }
     
-    private void refreshOptions()
-    {
-        options = menu
-                          .get(position)
-                          .getLinks();
+    
+    private void refreshOptions() {
+        options = menu.get(position)
+                      .getLinks();
     }
     
 }
